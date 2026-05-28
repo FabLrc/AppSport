@@ -11,6 +11,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import Svg, { Circle, Line } from 'react-native-svg';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { Screen } from '@/shared/components/Screen';
@@ -28,6 +29,14 @@ type Props = NativeStackScreenProps<RootStackParamList, 'WorkoutSession'>;
 
 const XP_SEANCE = 100;
 const XP_SEANCE_ZERO_FIRST = 80;
+const REST_DURATION = 90; // secondes — modifiable sans impact sur l'UX
+
+// Dimensions du cadran SVG
+const TIMER_SIZE = 260;
+const TIMER_R = 100;
+const TIMER_STROKE = 14;
+const TIMER_C = TIMER_SIZE / 2;
+const TIMER_CIRC = 2 * Math.PI * TIMER_R;
 
 function formatTime(totalSeconds: number): string {
   const m = Math.floor(totalSeconds / 60);
@@ -51,33 +60,44 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
   const [saving, setSaving] = useState(false);
 
   // --- Chronomètre de repos ---
-  const [restActive, setRestActive] = useState(false);
-  const [restElapsed, setRestElapsed] = useState(0);
+  const [restMode, setRestMode] = useState<'idle' | 'counting' | 'done'>('idle');
+  const [restRemaining, setRestRemaining] = useState(REST_DURATION);
+  const [restNextLabel, setRestNextLabel] = useState('');
   const restIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Ref miroir pour lire le décompte sans problème de closure dans l'interval
+  const restRemainingRef = useRef(REST_DURATION);
 
   useEffect(() => {
     return () => {
-      if (restIntervalRef.current !== null) {
-        clearInterval(restIntervalRef.current);
-      }
+      if (restIntervalRef.current !== null) clearInterval(restIntervalRef.current);
     };
   }, []);
 
-  const handleToggleTimer = () => {
-    if (restActive) {
-      if (restIntervalRef.current !== null) {
-        clearInterval(restIntervalRef.current);
+  const startRestTimer = (nextLabel: string) => {
+    if (restIntervalRef.current !== null) clearInterval(restIntervalRef.current);
+    setRestNextLabel(nextLabel);
+    restRemainingRef.current = REST_DURATION;
+    setRestRemaining(REST_DURATION);
+    setRestMode('counting');
+    restIntervalRef.current = setInterval(() => {
+      restRemainingRef.current -= 1;
+      setRestRemaining(restRemainingRef.current);
+      if (restRemainingRef.current <= 0) {
+        if (restIntervalRef.current !== null) clearInterval(restIntervalRef.current);
         restIntervalRef.current = null;
+        setRestMode('done');
       }
-      setRestActive(false);
-      setRestElapsed(0);
-    } else {
-      setRestActive(true);
-      setRestElapsed(0);
-      restIntervalRef.current = setInterval(() => {
-        setRestElapsed((prev) => prev + 1);
-      }, 1000);
+    }, 1000);
+  };
+
+  const skipRestTimer = () => {
+    if (restIntervalRef.current !== null) {
+      clearInterval(restIntervalRef.current);
+      restIntervalRef.current = null;
     }
+    restRemainingRef.current = REST_DURATION;
+    setRestMode('idle');
+    setRestRemaining(REST_DURATION);
   };
 
   const stopTimer = () => {
@@ -85,18 +105,18 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
       clearInterval(restIntervalRef.current);
       restIntervalRef.current = null;
     }
-    setRestActive(false);
-    setRestElapsed(0);
+    restRemainingRef.current = REST_DURATION;
+    setRestMode('idle');
+    setRestRemaining(REST_DURATION);
   };
 
-  // --- Modal de réorganisation des exercices restants ---
+  // --- Modal de réorganisation ---
   const [reorderVisible, setReorderVisible] = useState(false);
   const [reorderList, setReorderList] = useState<ExerciceAvecConfig[]>([]);
 
   const openReorder = () => {
     if (session === null) return;
-    const remaining = session.exercises.slice(session.currentExerciseIndex + 1);
-    setReorderList([...remaining]);
+    setReorderList([...session.exercises.slice(session.currentExerciseIndex + 1)]);
     setReorderVisible(true);
   };
 
@@ -169,8 +189,24 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
     reps: number,
     difficulte: DifficulteSubjective | null,
   ) => {
+    // Calculer le prochain label AVANT la mise à jour du store
+    const afterCount = completedForCurrent + 1;
+    const willFinishExercise = afterCount >= series_cible;
+    const currentlyLastEx = isLastExercice();
+
+    let nextLabel = '';
+    if (!willFinishExercise) {
+      nextLabel = strings.restTimer.nextSerie
+        .replace('{current}', String(afterCount + 1))
+        .replace('{total}', String(series_cible));
+    } else if (!currentlyLastEx) {
+      const nextEx = session.exercises[session.currentExerciseIndex + 1];
+      if (nextEx !== undefined) {
+        nextLabel = strings.restTimer.nextExercice.replace('{nom}', nextEx.exercice.nom);
+      }
+    }
+
     setSaving(true);
-    stopTimer(); // stoppe le chrono entre les séries
     try {
       await createSerie({
         seance_id: seanceId,
@@ -181,6 +217,11 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
         difficulte_subjective: difficulte,
       });
       recordSerieCompleted(exercice.id);
+
+      // Démarre le repos, sauf après la toute dernière série de la séance
+      if (!(willFinishExercise && currentlyLastEx)) {
+        startRestTimer(nextLabel);
+      }
     } finally {
       setSaving(false);
     }
@@ -230,8 +271,6 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
 
   const totalSeriesAll = session.exercises.reduce((acc, e) => acc + e.series_cible, 0);
   const doneSeriesAll = Object.values(session.completedSeriesCount).reduce((acc, n) => acc + n, 0);
-
-  // Exercices restants (après le courant) pour la réorganisation
   const remainingCount = session.exercises.length - session.currentExerciseIndex - 1;
 
   return (
@@ -260,7 +299,7 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Nom exercice + accès à l'historique */}
+          {/* Nom exercice + historique */}
           <View style={styles.exerciseHeader}>
             <View style={styles.exerciseNameRow}>
               <Text variant="display" style={styles.exerciseName}>
@@ -312,7 +351,7 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
             </Text>
           </View>
 
-          {/* Formulaire de saisie — clé pour forcer le remount à chaque série */}
+          {/* Formulaire de saisie — clé pour forcer le remount */}
           {!allDone && (
             <SerieInputForm
               key={`${session.currentExerciseIndex}-${completedForCurrent}`}
@@ -322,7 +361,7 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
             />
           )}
 
-          {/* Boutons de navigation (quand toutes les séries sont faites) */}
+          {/* Navigation (quand toutes les séries de l'exercice sont faites) */}
           {allDone && (
             <View style={styles.navButtons}>
               {!isLast ? (
@@ -335,7 +374,7 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
                 <Button
                   label={strings.workout.finishWorkout}
                   fullWidth
-                  onPress={handleFinish}
+                  onPress={() => void handleFinish()}
                   loading={saving}
                 />
               )}
@@ -343,29 +382,7 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
           )}
         </ScrollView>
 
-        {/* Chronomètre de repos — barre fixe avant les exercices restants */}
-        <View style={styles.timerBar}>
-          {restActive ? (
-            <>
-              <Text variant="numeric" style={styles.timerText}>
-                {formatTime(restElapsed)}
-              </Text>
-              <Pressable onPress={handleToggleTimer} style={styles.timerStopBtn}>
-                <Text variant="caption" color="textSecondary">
-                  {strings.restTimer.stop}
-                </Text>
-              </Pressable>
-            </>
-          ) : (
-            <Pressable onPress={handleToggleTimer} style={styles.timerStartBtn}>
-              <Text variant="caption" color="textMuted">
-                ⏱ {strings.restTimer.label}
-              </Text>
-            </Pressable>
-          )}
-        </View>
-
-        {/* Liste des exercices restants + bouton réorganiser */}
+        {/* Bande des exercices à venir */}
         {session.exercises.length > 1 && (
           <View style={styles.upcomingContainer}>
             {remainingCount > 1 && (
@@ -403,6 +420,23 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
           </View>
         )}
       </KeyboardAvoidingView>
+
+      {/* Overlay plein écran — chronomètre de repos */}
+      <Modal
+        visible={restMode !== 'idle'}
+        animationType="fade"
+        statusBarTranslucent
+        transparent={false}
+      >
+        <RestTimerOverlay
+          remaining={restRemaining}
+          total={REST_DURATION}
+          mode={restMode as 'counting' | 'done'}
+          nextLabel={restNextLabel}
+          seanceTypeName={session.seanceTypeName}
+          onSkip={skipRestTimer}
+        />
+      </Modal>
 
       {/* Modal de réorganisation */}
       <Modal visible={reorderVisible} transparent animationType="slide">
@@ -467,9 +501,143 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
 }
 
 // ---------------------------------------------------------------------------
+// Overlay chronomètre de repos — cadran SVG physique
+// ---------------------------------------------------------------------------
+function RestTimerOverlay({
+  remaining,
+  total,
+  mode,
+  nextLabel,
+  seanceTypeName,
+  onSkip,
+}: {
+  remaining: number;
+  total: number;
+  mode: 'counting' | 'done';
+  nextLabel: string;
+  seanceTypeName: string;
+  onSkip: () => void;
+}) {
+  const isDone = mode === 'done';
+  const progress = remaining / total; // 1.0 → 0.0
+  // L'arc se vide au fil du décompte ; quand terminé, on repasse à plein (couleur succès)
+  const strokeDashoffset = isDone ? 0 : TIMER_CIRC * (1 - progress);
+
+  const arcColor = isDone
+    ? theme.colors.success
+    : remaining > 30
+      ? theme.colors.primary
+      : remaining > 10
+        ? theme.colors.warning
+        : theme.colors.error;
+
+  // 12 graduations comme un cadran de montre (majeures à 12h, 3h, 6h, 9h)
+  const tickInnerEdge = TIMER_R - TIMER_STROKE / 2 - 1;
+  const ticks = Array.from({ length: 12 }, (_, i) => {
+    const isMajor = i % 3 === 0;
+    const angle = (i * 30 * Math.PI) / 180;
+    const outerR = tickInnerEdge;
+    const innerR = outerR - (isMajor ? 11 : 6);
+    const x1 = TIMER_C + Math.sin(angle) * outerR;
+    const y1 = TIMER_C - Math.cos(angle) * outerR;
+    const x2 = TIMER_C + Math.sin(angle) * innerR;
+    const y2 = TIMER_C - Math.cos(angle) * innerR;
+    return (
+      <Line
+        key={i}
+        x1={x1}
+        y1={y1}
+        x2={x2}
+        y2={y2}
+        stroke={theme.colors.border}
+        strokeWidth={isMajor ? 2.5 : 1.5}
+        strokeLinecap="round"
+      />
+    );
+  });
+
+  return (
+    <View style={overlayStyles.screen}>
+      {/* Nom de la séance en haut */}
+      <Text variant="caption" color="textMuted" style={overlayStyles.sessionName}>
+        {seanceTypeName}
+      </Text>
+
+      {/* Contenu centré */}
+      <View style={overlayStyles.main}>
+        {/* Label "REPOS" / "REPOS TERMINÉ" */}
+        <Text variant="label" color="textMuted" style={overlayStyles.restLabel}>
+          {isDone ? strings.restTimer.done.toUpperCase() : strings.restTimer.label}
+        </Text>
+
+        {/* Cadran SVG */}
+        <View style={overlayStyles.dialWrapper}>
+          <Svg width={TIMER_SIZE} height={TIMER_SIZE} style={StyleSheet.absoluteFill}>
+            {/* Piste de fond */}
+            <Circle
+              cx={TIMER_C}
+              cy={TIMER_C}
+              r={TIMER_R}
+              stroke={theme.colors.surface}
+              strokeWidth={TIMER_STROKE}
+              fill="none"
+            />
+            {/* Graduations */}
+            {ticks}
+            {/* Arc de décompte */}
+            <Circle
+              cx={TIMER_C}
+              cy={TIMER_C}
+              r={TIMER_R}
+              stroke={arcColor}
+              strokeWidth={TIMER_STROKE}
+              fill="none"
+              strokeDasharray={TIMER_CIRC}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+              rotation="-90"
+              origin={`${TIMER_C}, ${TIMER_C}`}
+            />
+          </Svg>
+
+          {/* Temps centré sur le cadran */}
+          <View style={overlayStyles.dialCenter}>
+            <Text style={[overlayStyles.timeText, { color: arcColor }]}>
+              {formatTime(remaining)}
+            </Text>
+            {isDone && (
+              <Text variant="headingSmall" style={overlayStyles.doneCheck}>
+                ✓
+              </Text>
+            )}
+          </View>
+        </View>
+
+        {/* Prochain exercice / série */}
+        {nextLabel !== '' && (
+          <Text variant="bodySmall" color="textSecondary" style={overlayStyles.nextLabel}>
+            {nextLabel}
+          </Text>
+        )}
+      </View>
+
+      {/* Bouton Passer / Continuer */}
+      <View style={overlayStyles.actions}>
+        <Button
+          label={isDone ? strings.restTimer.continue : strings.restTimer.skip}
+          fullWidth
+          variant={isDone ? 'primary' : 'ghost'}
+          onPress={onSkip}
+        />
+      </View>
+    </View>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Formulaire de saisie d'une série
-// Monté avec une clé unique par série/exercice — React recrée le composant
-// et son state local est réinitialisé sans useEffect de reset.
+// Monté avec une clé unique — React recrée le composant et son state local
+// est réinitialisé sans useEffect de reset.
 // ---------------------------------------------------------------------------
 function SerieInputForm({
   exerciceConfig,
@@ -507,7 +675,6 @@ function SerieInputForm({
 
   return (
     <View style={formStyles.container}>
-      {/* Charge (exercices avec charge uniquement) */}
       {!isPoidsCorp && (
         <View style={formStyles.inputGroup}>
           <Text variant="label" color="textSecondary">
@@ -526,7 +693,6 @@ function SerieInputForm({
         </View>
       )}
 
-      {/* Répétitions / durée */}
       <View style={formStyles.inputGroup}>
         <Text variant="label" color="textSecondary">
           {isTimed ? strings.workout.durationLabel : strings.workout.repsLabel}
@@ -544,7 +710,6 @@ function SerieInputForm({
         />
       </View>
 
-      {/* Difficulté subjective (poids du corps uniquement) */}
       {isPoidsCorp && (
         <View style={formStyles.difficulteGroup}>
           <Text variant="label" color="textSecondary">
@@ -667,35 +832,6 @@ const styles = StyleSheet.create({
   navButtons: {
     gap: theme.spacing.md,
   },
-  // --- Timer ---
-  timerBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: theme.spacing.xl,
-    paddingVertical: theme.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
-    gap: theme.spacing.md,
-    minHeight: 44,
-  },
-  timerText: {
-    color: theme.colors.primary,
-    fontSize: 22,
-    letterSpacing: 2,
-  },
-  timerStopBtn: {
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.xs,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  timerStartBtn: {
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.xs,
-  },
-  // --- Upcoming exercises strip ---
   upcomingContainer: {
     borderTopWidth: 1,
     borderTopColor: theme.colors.border,
@@ -720,6 +856,59 @@ const styles = StyleSheet.create({
   },
   upcomingItemDone: {
     opacity: 0.4,
+  },
+});
+
+const overlayStyles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+    alignItems: 'center',
+    paddingHorizontal: theme.spacing.xl,
+    paddingTop: theme.spacing.xxl,
+    paddingBottom: theme.spacing.xxxl,
+  },
+  sessionName: {
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginBottom: theme.spacing.xl,
+  },
+  main: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.xl,
+    width: '100%',
+  },
+  restLabel: {
+    letterSpacing: 3,
+    textTransform: 'uppercase',
+  },
+  dialWrapper: {
+    width: TIMER_SIZE,
+    height: TIMER_SIZE,
+  },
+  dialCenter: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timeText: {
+    fontSize: 58,
+    fontWeight: '700',
+    letterSpacing: 4,
+    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
+  },
+  doneCheck: {
+    color: theme.colors.success,
+    marginTop: 4,
+  },
+  nextLabel: {
+    textAlign: 'center',
+    letterSpacing: 0.5,
+  },
+  actions: {
+    width: '100%',
   },
 });
 

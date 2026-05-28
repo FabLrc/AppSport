@@ -133,8 +133,12 @@ export const strings = {
     settings: 'Réglages',
   },
   restTimer: {
-    label: 'Repos',
-    stop: 'Arrêter',
+    label: 'REPOS',
+    skip: 'Passer',
+    continue: 'Continuer →',
+    done: 'Repos terminé',
+    nextSerie: 'Série {current}/{total}',
+    nextExercice: 'Prochain : {nom}',
   },
   reorder: {
     button: 'Réorganiser',
