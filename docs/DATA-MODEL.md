@@ -229,25 +229,35 @@ Affectation d'activité par jour de la semaine.
   expose `getActiviteAujourdhui()` qui mappe `new Date().getDay()` (0=Dimanche) sur les colonnes SQLite.
 - **Écrans** : `src/features/running/screens/` + `src/features/planning/screens/MacroPlanningScreen.tsx`.
 
-### Lot 5 — Rappels
+### Lot 5 — Rappels ✅
 
-#### `journal_rappel` — ⏳ Lot 5
+#### `journal_rappel` — ✅ Lot 5
 
-Configuration et historique des rappels (section 6 — JournalRappel,
-section 8 — Rappels par défaut).
+9 rappels configurables (section 6 — JournalRappel, section 8 — Rappels par défaut).
 
-| Colonne                | Type                                | Notes                                                      |
-| ---------------------- | ----------------------------------- | ---------------------------------------------------------- |
-| `id`                   | `INTEGER PRIMARY KEY AUTOINCREMENT` |
-| `type`                 | `TEXT NOT NULL`                     | enum : `'musculation' \| 'course' \| 'hydratation' \| ...` |
-| `horaire`              | `TEXT NOT NULL`                     | format HH:MM (ou plage HH:MM-HH:MM)                        |
-| `frequence`            | `TEXT NOT NULL`                     | enum : `'quotidien' \| 'hebdomadaire' \| ...`              |
-| `actif`                | `INTEGER NOT NULL DEFAULT 1`        |
-| `expo_notification_id` | `TEXT`                              | identifiant retourné par expo-notifications                |
+| Colonne            | Type                                | Notes                                                                       |
+| ------------------ | ----------------------------------- | --------------------------------------------------------------------------- |
+| `id`               | `INTEGER PRIMARY KEY AUTOINCREMENT` |
+| `type`             | `TEXT NOT NULL UNIQUE`              | enum : voir `RappelType` dans `types.ts`                                    |
+| `actif`            | `INTEGER NOT NULL DEFAULT 1`        | bool                                                                        |
+| `horaire`          | `TEXT NOT NULL`                     | `"HH:MM"` — heure de déclenchement (ou heure de début pour plages répétées) |
+| `notification_ids` | `TEXT NOT NULL DEFAULT '[]'`        | JSON array des identifiants expo-notifications actifs                        |
 
-À voir : table séparée pour l'**historique** d'occurrences (a-t-on respecté
-le rappel ou non, ce qui pilote l'XP) — probablement
-`journal_rappel_occurrence` ajoutée au Lot 6 quand l'XP entre en jeu.
+#### Notes d'implémentation Lot 5
+
+- **Schéma simplifié** : pas de colonne `frequence` (déduite du type en domaine). Le champ
+  `notification_ids` stocke un tableau JSON d'IDs expo — plusieurs IDs pour hydratation (6) et
+  posture (10).
+- **Repository** : `src/db/repositories/journalRappelRepository.ts` — `getAllRappels`,
+  `getRappelByType`, `updateRappel` (partial).
+- **Domaine** : `src/domain/reminders/index.ts` — `buildNotificationSpecs(rappel, planning)` retourne
+  les specs sans dépendance expo ; la conversion en trigger expo se fait dans `src/shared/notifications.ts`.
+- **Sync** : `syncAllReminders()` appelé au démarrage (après migration), `syncRappel(type)` lors de
+  chaque modification utilisateur dans `RemindersScreen`.
+- **Rappels activité** : `seance_musculation` et `course` ne se déclenchent que les jours définis dans
+  `macro_planning` (triggers WEEKLY).
+
+À voir au Lot 6 : table `journal_rappel_occurrence` pour le suivi XP des rappels respectés.
 
 ### Lot 6 — Gamification, nutrition
 

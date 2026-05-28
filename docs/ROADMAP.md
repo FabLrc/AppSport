@@ -87,7 +87,7 @@ aux programmes et aux suggestions de progression.
   - Réglage séries/reps cibles par exercice
   - Réorganisation de l'ordre (↑/↓)
 - ✅ Écran Réglages opérationnel (profil + accès aux programmes)
-- ⚠️ Notifications de fin de repos : foreground uniquement — expo-notifications différé au Lot 5
+- ✅ Notifications de fin de repos : notification arrière-plan livréeau Lot 5 (AppState + `scheduleRestEndNotification`)
 
 ## Lot 4 — Course à pied ✅
 
@@ -106,18 +106,26 @@ Cahier section 5.6, section 7.5, section 10.
 - ✅ `HomeScreen` : carte d'activité du jour pilotée par le macro-planning (repos / course / musculation)
 - ✅ Settings : lien vers `MacroPlanningScreen`
 
-## Lot 5 — Rappels ⏳
+## Lot 5 — Rappels ✅
 
 Cahier section 5.8, section 8, section 10.
 
-À livrer :
-
-- 9 rappels par défaut (musculation, course, hydratation, repas, posture, mensurations)
-- Activation/désactivation et horaire modifiables par rappel
-- Rappels d'activité pilotés par le `macro_planning` (déclenchés uniquement
-  les jours où l'activité est prévue)
-- Table `journal_rappel` + repository
-- Intégration `expo-notifications`
+- ✅ Migration 005 — table `journal_rappel` (9 rappels pré-seedés)
+- ✅ Types `JournalRappel`, `RappelType`, `UpdateRappelInput`
+- ✅ `journalRappelRepository` : `getAllRappels`, `getRappelByType`, `updateRappel`
+- ✅ `src/domain/reminders/` : `buildNotificationSpecs` — logique pure de scheduling
+  - `seance_musculation` / `course` : WEEKLY uniquement les jours planifiés dans `macro_planning`
+  - `hydratation` : DAILY toutes les 2h de 9h à 19h (6 notifications)
+  - `pause_posture` : DAILY toutes les heures de 9h à 18h (10 notifications)
+  - `mensurations` : WEEKLY samedi
+  - `petit_dejeuner`, `dejeuner`, `collation`, `diner` : DAILY à heure fixe
+- ✅ `src/shared/notifications.ts` : permissions, `syncAllReminders`, `syncRappel`, `scheduleRestEndNotification`
+- ✅ `RemindersScreen` : 9 rappels listés avec toggle ON/OFF et modification d'horaire (sauf hydratation/posture)
+- ✅ `DatabaseProvider` : demande de permission + sync au démarrage (non bloquant)
+- ✅ `WorkoutSessionScreen` : notification de fin de repos quand l'app passe en arrière-plan
+- ✅ Navigation : route `Reminders` + lien dans Settings
+- ✅ `expo-notifications` v0.32 installé + plugin configuré dans `app.config.ts`
+- ⚠️ Notification Lot 3 (repos en avant-plan) : marquée résolue — la notification arrière-plan est maintenant fonctionnelle
 
 ## Lot 6 — Gamification + nutrition + onboarding progressif ⏳
 
