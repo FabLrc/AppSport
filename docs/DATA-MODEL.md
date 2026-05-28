@@ -26,7 +26,7 @@ Aucune n'est créée pour l'instant — chacune arrivera avec son lot.
 
 ### Lot 1 — Onboarding & première séance
 
-#### `profil` — ⏳ Lot 1
+#### `profil` — ✅ Lot 1
 
 Une seule ligne par installation (cahier section 6 — Profil).
 
@@ -59,7 +59,7 @@ Une seule ligne par installation (cahier section 6 — Profil).
 | `planning_configure`       | `INTEGER NOT NULL DEFAULT 0`         |
 | `nudges_state`             | `TEXT NOT NULL DEFAULT '{}'`         | JSON sérialisé : `{ <nudge_key>: 'shown' \| 'ignored' \| 'done' }` |
 
-#### `exercice` — ⏳ Lot 1
+#### `exercice` — ✅ Lot 1
 
 Table de référence (cahier section 6 — Exercice).
 
@@ -76,7 +76,7 @@ Table de référence (cahier section 6 — Exercice).
 Pré-rempli au premier lancement avec un catalogue de base + les exercices
 de la Séance Zéro.
 
-#### `seance_type` — ⏳ Lot 1
+#### `seance_type` — ✅ Lot 1
 
 Modèles de séance (Haut, Bas, Séance Zéro).
 
@@ -88,7 +88,7 @@ Modèles de séance (Haut, Bas, Séance Zéro).
 | `is_seance_zero` | `INTEGER NOT NULL DEFAULT 0`              |
 | `created_at`     | `TEXT NOT NULL DEFAULT (datetime('now'))` |
 
-#### `seance_type_exercice` — ⏳ Lot 1
+#### `seance_type_exercice` — ✅ Lot 1
 
 Liste ordonnée d'exercices par séance type, avec séries cibles et
 fourchette de répétitions.
@@ -104,7 +104,7 @@ fourchette de répétitions.
 | `reps_max`            | `INTEGER NOT NULL`                                              |
 | `duree_seconde_cible` | `INTEGER`                                                       | pour les exercices en temps (gainage) |
 
-#### `seance` — ⏳ Lot 1
+#### `seance` — ✅ Lot 1
 
 Séance de musculation réalisée.
 
@@ -118,7 +118,7 @@ Séance de musculation réalisée.
 | `created_at`     | `TEXT NOT NULL DEFAULT (datetime('now'))` |
 | `completed_at`   | `TEXT`                                    |
 
-#### `serie_performance` — ⏳ Lot 1
+#### `serie_performance` — ✅ Lot 1
 
 Une série effectuée dans une séance.
 

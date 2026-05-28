@@ -30,24 +30,28 @@ Hors cahier : préparation à l'implémentation. **Livré dans cette session.**
 - ✅ Documentation complète (README, ARCHITECTURE, BRANDING, DATA-MODEL, DEVELOPMENT, ROADMAP)
 - ✅ Copie du cahier des charges sous `docs/cahier-des-charges.md`
 
-## Lot 1 — Onboarding sprint + Séance Zéro + saisie séance ⏳
+## Lot 1 — Onboarding sprint + Séance Zéro + saisie séance ✅
 
 Cahier section 10, ligne « Lot 1 ». Premier lot fonctionnel ; rend l'app
 **utilisable dès le premier lancement**.
 
-À livrer :
-
-- Onboarding sprint (3 questions : prénom, objectif, niveau) < 2 minutes
-- Sélection automatique du programme-type d'après objectif + niveau
-- Séance Zéro (programme au poids du corps, descriptions d'exercices,
-  compteur de reps + difficulté subjective)
-- Écran de séance générique avec saisie adaptée selon `mode_charge`
-  (charge + reps OU compteur reps seul)
-- Reprise d'une séance interrompue (cahier 9.4)
-- Tables `profil`, `exercice`, `seance_type`, `seance_type_exercice`,
-  `seance`, `serie_performance` + repositories
-
-Voir [`DATA-MODEL.md`](DATA-MODEL.md) pour le schéma planifié.
+- ✅ Onboarding sprint — 3 questions en < 2 min (prénom, objectif, niveau)
+- ✅ Profil créé en base ; programme-type pré-configuré automatiquement
+- ✅ Migration 002 — tables `profil`, `exercice`, `seance_type`,
+  `seance_type_exercice`, `seance`, `serie_performance` + index
+- ✅ Catalogue d'exercices seedé (16 exercices : Séance Zéro + programmes Haut/Bas)
+- ✅ Séance Zéro disponible (au poids du corps, descriptions, difficulté subjective)
+- ✅ Programmes Haut et Bas pré-configurés (exercices avec charge)
+- ✅ Écran de séance générique :
+  - Exercices au poids du corps : compteur de reps + difficulté subjective
+  - Exercices avec charge : champ charge + champ reps
+  - Exercices chronométrés : champ durée en secondes
+- ✅ Reprise d'une séance interrompue (statut `en_cours` + reconstruction depuis DB)
+- ✅ Récapitulatif en fin de séance avec XP gagné (+80 XP première Séance Zéro, +100 XP sinon)
+- ✅ Onglets principaux (Accueil + Réglages placeholder)
+- ✅ Repositories : `profilRepository`, `exerciceRepository`, `seanceTypeRepository`,
+  `seanceRepository`, `seriePerformanceRepository`
+- ✅ Stores Zustand : `profileStore`, `sessionStore`
 
 ## Lot 2 — Suivi corporel ⏳
 
