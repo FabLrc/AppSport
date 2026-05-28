@@ -896,8 +896,7 @@ const overlayStyles = StyleSheet.create({
   timeText: {
     fontSize: 58,
     fontWeight: '700',
-    letterSpacing: 4,
-    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
+    letterSpacing: 1,
   },
   doneCheck: {
     color: theme.colors.success,
