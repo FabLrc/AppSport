@@ -58,6 +58,15 @@ const config: ExpoConfig = {
         cameraPermission: 'Cette app accède à ta caméra pour prendre des photos de progression.',
       },
     ],
+    [
+      'expo-notifications',
+      {
+        icon: branding.assets.adaptiveIconForeground,
+        color: branding.colors.primary,
+        defaultChannel: 'default',
+        sounds: [],
+      },
+    ],
   ],
 };
 

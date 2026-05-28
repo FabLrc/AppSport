@@ -13,6 +13,8 @@ export type RootStackParamList = {
   // Lot 4 — course à pied
   AddRun: undefined;
   MacroPlanning: undefined;
+  // Lot 5 — rappels
+  Reminders: undefined;
 };
 
 export type MainTabParamList = {

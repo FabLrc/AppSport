@@ -12,6 +12,7 @@ import { ExercicePickerScreen } from '@/features/training/screens/ExercicePicker
 import { AddMeasurementScreen } from '@/features/body-tracking/screens/AddMeasurementScreen';
 import { AddRunScreen } from '@/features/running/screens/AddRunScreen';
 import { MacroPlanningScreen } from '@/features/planning/screens/MacroPlanningScreen';
+import { RemindersScreen } from '@/features/settings/screens/RemindersScreen';
 import { useProfileStore } from '@/state/profileStore';
 import { theme } from '@/shared/theme';
 
@@ -67,6 +68,7 @@ export function RootNavigator() {
             options={{ presentation: 'modal' }}
           />
           <Stack.Screen name="MacroPlanning" component={MacroPlanningScreen} />
+          <Stack.Screen name="Reminders" component={RemindersScreen} />
         </>
       )}
     </Stack.Navigator>

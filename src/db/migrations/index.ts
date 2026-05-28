@@ -2,6 +2,7 @@ import { migration as migration001 } from './001_init';
 import { migration as migration002 } from './002_lot1_tables';
 import { migration as migration003 } from './003_lot2_mesures';
 import { migration as migration004 } from './004_lot4_course';
+import { migration as migration005 } from './005_lot5_rappels';
 
 import type { Migration } from '../migrate';
 
@@ -17,4 +18,5 @@ export const ALL_MIGRATIONS: readonly Migration[] = [
   migration002,
   migration003,
   migration004,
+  migration005,
 ];

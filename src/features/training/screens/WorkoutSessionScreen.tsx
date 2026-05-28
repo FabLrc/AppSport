@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
+  AppState,
   FlatList,
   KeyboardAvoidingView,
   Modal,
@@ -17,6 +18,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Screen } from '@/shared/components/Screen';
 import { Text } from '@/shared/components/Text';
 import { Button } from '@/shared/components/Button';
+import { scheduleRestEndNotification, cancelRestEndNotification } from '@/shared/notifications';
 import { useSessionStore } from '@/state/sessionStore';
 import { createSerie } from '@/db/repositories/seriePerformanceRepository';
 import { completeSeance, countSeanceZeroCompletees } from '@/db/repositories/seanceRepository';
@@ -73,6 +75,19 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
     };
   }, []);
 
+  // Schedule/cancel rest-end notification when app goes to background
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (nextState) => {
+      if (restMode !== 'counting') return;
+      if (nextState === 'background' || nextState === 'inactive') {
+        void scheduleRestEndNotification(restRemainingRef.current);
+      } else if (nextState === 'active') {
+        void cancelRestEndNotification();
+      }
+    });
+    return () => sub.remove();
+  }, [restMode]);
+
   const startRestTimer = (nextLabel: string) => {
     if (restIntervalRef.current !== null) clearInterval(restIntervalRef.current);
     setRestNextLabel(nextLabel);
@@ -86,6 +101,7 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
         if (restIntervalRef.current !== null) clearInterval(restIntervalRef.current);
         restIntervalRef.current = null;
         setRestMode('done');
+        void cancelRestEndNotification();
       }
     }, 1000);
   };
@@ -98,6 +114,7 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
     restRemainingRef.current = REST_DURATION;
     setRestMode('idle');
     setRestRemaining(REST_DURATION);
+    void cancelRestEndNotification();
   };
 
   const stopTimer = () => {

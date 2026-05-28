@@ -140,3 +140,30 @@ export interface VolumeStats {
   hebdo: number;
   mensuel: number;
 }
+
+// --- Lot 5 — Rappels ---
+
+export type RappelType =
+  | 'seance_musculation'
+  | 'course'
+  | 'hydratation'
+  | 'petit_dejeuner'
+  | 'dejeuner'
+  | 'collation'
+  | 'diner'
+  | 'pause_posture'
+  | 'mensurations';
+
+export interface JournalRappel {
+  id: number;
+  type: RappelType;
+  actif: boolean;
+  horaire: string; // "HH:MM"
+  notification_ids: string[]; // IDs expo-notifications
+}
+
+export type UpdateRappelInput = {
+  actif?: boolean;
+  horaire?: string;
+  notification_ids?: string[];
+};

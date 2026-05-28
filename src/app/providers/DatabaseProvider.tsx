@@ -4,6 +4,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { runMigrations, type MigrationOutcome } from '@/db/migrate';
 import { Button, Card, Screen, Text } from '@/shared/components';
 import { theme } from '@/shared/theme';
+import { requestNotificationPermissions, syncAllReminders } from '@/shared/notifications';
 
 type DbState =
   | { status: 'pending' }
@@ -26,7 +27,7 @@ export function DatabaseProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     let cancelled = false;
     runMigrations()
-      .then((outcome) => {
+      .then(async (outcome) => {
         if (cancelled) return;
         if (outcome.applied.length > 0) {
           console.log(
@@ -35,6 +36,11 @@ export function DatabaseProvider({ children }: PropsWithChildren) {
           );
         } else {
           console.log(`[db] schéma déjà à jour (v${outcome.toVersion})`);
+        }
+        // Request notification permissions and sync reminders after DB is ready
+        const granted = await requestNotificationPermissions();
+        if (granted) {
+          syncAllReminders().catch((e: unknown) => console.warn('[notifications] sync échoué', e));
         }
         setState({ status: 'ready', outcome });
       })

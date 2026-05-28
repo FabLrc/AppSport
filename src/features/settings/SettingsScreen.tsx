@@ -82,6 +82,20 @@ export function SettingsScreen({ navigation }: Props) {
                 onPress={() => navigation.navigate('MacroPlanning')}
               />
             </View>
+            <View style={[styles.settingRowBtn, styles.settingBorder]}>
+              <View style={styles.settingInfo}>
+                <Text variant="body">{strings.settings.reminders}</Text>
+                <Text variant="bodySmall" color="textSecondary">
+                  {strings.settings.remindersSubtitle}
+                </Text>
+              </View>
+              <Button
+                label={strings.programs.editButton}
+                size="sm"
+                variant="secondary"
+                onPress={() => navigation.navigate('Reminders')}
+              />
+            </View>
           </Card>
         </View>
 
