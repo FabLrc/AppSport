@@ -1,16 +1,6 @@
-/**
- * Toutes les chaînes textuelles affichées dans l'app, en français.
- *
- * L'objet est figé (`as const`) pour avoir des littéraux et de l'autocomplétion.
- * Les clés sont structurées par feature pour limiter la friction quand un lot
- * arrive et apporte ses propres écrans.
- *
- * Quand on aura besoin d'i18n (post-MVP), ce fichier servira de base à
- * l'extraction des clés vers `react-i18next` ou équivalent.
- */
 export const strings = {
   common: {
-    appName: '', // injecté depuis le branding pour ne pas dupliquer la valeur
+    appName: '',
     next: 'Suivant',
     back: 'Retour',
     save: 'Enregistrer',
@@ -24,11 +14,123 @@ export const strings = {
     loading: 'Chargement…',
     error: 'Une erreur est survenue',
     retry: 'Réessayer',
+    start: 'Démarrer',
+    finish: 'Terminer',
+    skip: 'Passer',
+    reps: 'reps',
+    seconds: 'sec',
+    kg: 'kg',
+    set: 'Série',
+    sets: 'Séries',
   },
   placeholder: {
     title: 'Socle prêt',
     subtitle: 'En attente du Lot 1 — onboarding, Séance Zéro et écran de séance.',
     cta: 'Ouvrir les notes de version',
+  },
+  onboarding: {
+    stepPrenom: {
+      title: "Comment tu t'appelles ?",
+      subtitle: 'Ton prénom apparaîtra dans tes messages personnalisés.',
+      placeholder: 'Entre ton prénom',
+      errorRequired: 'Ton prénom est requis',
+    },
+    stepObjectif: {
+      title: 'Quel est ton objectif ?',
+      subtitle: 'On sélectionnera le programme le plus adapté.',
+      options: {
+        recomposition: {
+          label: 'Recomposition',
+          description: 'Perdre du gras et gagner du muscle simultanément',
+        },
+        prise_de_masse: {
+          label: 'Prise de masse',
+          description: 'Développer ta masse musculaire',
+        },
+        perte: {
+          label: 'Perte de poids',
+          description: 'Affiner ta silhouette et perdre du gras',
+        },
+        endurance: {
+          label: 'Endurance',
+          description: 'Améliorer ta résistance cardiovasculaire',
+        },
+      },
+    },
+    stepNiveau: {
+      title: 'Quel est ton niveau ?',
+      subtitle: "Sois honnête, c'est pour ton bien.",
+      options: {
+        debutant: {
+          label: 'Débutant',
+          description: "Je commence ou je reprends l'entraînement",
+        },
+        intermediaire: {
+          label: 'Intermédiaire',
+          description: "J'ai 6+ mois d'entraînement régulier",
+        },
+        confirme: {
+          label: 'Confirmé',
+          description: 'Plusieurs années de pratique régulière',
+        },
+      },
+    },
+    done: {
+      title: "C'est parti, {prenom} !",
+      subtitle:
+        'Ton programme est prêt. Lance ta première séance maintenant — 20 minutes, pas de matériel.',
+      ctaSeanceZero: 'Démarrer la Séance Zéro',
+      ctaSkip: 'Voir mes programmes',
+    },
+  },
+  home: {
+    greeting: 'Bonjour, {prenom}',
+    greetingEvening: 'Bonsoir, {prenom}',
+    nextSession: 'Prochaine séance',
+    noSession: "Repos aujourd'hui",
+    resumeBanner: 'Séance en cours',
+    resumeAction: 'Reprendre',
+    abandonAction: 'Abandonner',
+    programs: 'Mes programmes',
+    seanceZeroLabel: 'Séance Zéro',
+    seanceZeroSubtitle: 'Sans matériel · ~20 min',
+    startSeance: 'Démarrer',
+  },
+  workout: {
+    title: 'En séance',
+    exercise: 'Exercice',
+    serieLabel: 'Série {current}/{total}',
+    targetReps: '{min}-{max} reps',
+    targetSec: '{min}-{max} sec',
+    chargeLabel: 'Charge (kg)',
+    repsLabel: 'Répétitions',
+    durationLabel: 'Durée (sec)',
+    difficulte: {
+      label: 'Ressenti',
+      facile: 'Facile',
+      correct: 'Correct',
+      difficile: 'Difficile',
+    },
+    validateSerie: 'Valider la série',
+    nextExercise: 'Exercice suivant',
+    finishWorkout: 'Terminer la séance',
+    allSeriesDone: 'Toutes les séries sont complétées',
+    abandonConfirmTitle: 'Abandonner la séance ?',
+    abandonConfirmBody: 'La séance sera enregistrée avec les séries déjà effectuées.',
+    abandonConfirmYes: 'Abandonner',
+    abandonConfirmNo: 'Continuer',
+  },
+  summary: {
+    title: 'Séance terminée !',
+    titleSeanceZero: 'Première séance dans la boîte !',
+    xpEarned: '+{xp} XP',
+    seriesCompleted: '{n} série{s} complétée{s}',
+    backToHome: "Retour à l'accueil",
+    nudgeSeanceZero: "Continue comme ça — tes prochaines séances t'attendent sur l'accueil.",
+  },
+  tabs: {
+    home: 'Accueil',
+    settings: 'Réglages',
   },
 } as const;
 
