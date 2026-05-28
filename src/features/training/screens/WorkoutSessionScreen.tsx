@@ -260,11 +260,27 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Nom exercice */}
+          {/* Nom exercice + accès à l'historique */}
           <View style={styles.exerciseHeader}>
-            <Text variant="display" style={styles.exerciseName}>
-              {exercice.nom}
-            </Text>
+            <View style={styles.exerciseNameRow}>
+              <Text variant="display" style={styles.exerciseName}>
+                {exercice.nom}
+              </Text>
+              <Pressable
+                onPress={() =>
+                  navigation.navigate('ExerciceHistory', {
+                    exerciceId: exercice.id,
+                    exerciceNom: exercice.nom,
+                  })
+                }
+                hitSlop={8}
+                style={styles.historyBtn}
+              >
+                <Text variant="caption" color="textMuted">
+                  📈
+                </Text>
+              </Pressable>
+            </View>
             {exercice.description !== null && (
               <Text variant="bodySmall" color="textSecondary" style={styles.exerciseDesc}>
                 {exercice.description}
@@ -617,8 +633,17 @@ const styles = StyleSheet.create({
   exerciseHeader: {
     gap: theme.spacing.sm,
   },
+  exerciseNameRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: theme.spacing.sm,
+  },
   exerciseName: {
+    flex: 1,
     lineHeight: 40,
+  },
+  historyBtn: {
+    paddingTop: theme.spacing.sm,
   },
   exerciseDesc: {
     lineHeight: 20,
