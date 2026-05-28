@@ -58,7 +58,10 @@ export default [
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
-      'react-native/no-unused-styles': 'warn',
+      // `no-unused-styles` produit beaucoup de faux positifs avec les
+      // styles indexés dynamiquement (Record<Variant, ViewStyle>). On le coupe
+      // et on s'appuie sur TypeScript + review pour détecter le mort-code.
+      'react-native/no-unused-styles': 'off',
       'react-native/no-inline-styles': 'warn',
       'react-native/no-raw-text': 'off',
     },
