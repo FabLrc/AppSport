@@ -161,8 +161,7 @@ export function HomeScreen({ navigation }: Props) {
               <Button
                 label={strings.home.startSeance}
                 fullWidth
-                style={styles.startBtn}
-                onPress={() => handleStart(seanceZero)}
+                onPress={() => void handleStart(seanceZero)}
               />
             </Card>
           </View>
@@ -178,7 +177,13 @@ export function HomeScreen({ navigation }: Props) {
               <ProgramCard
                 key={program.id}
                 program={program}
-                onStart={() => handleStart(program)}
+                onStart={() => void handleStart(program)}
+                onEdit={() =>
+                  navigation.navigate('ProgramEdit', {
+                    seanceTypeId: program.id,
+                    seanceTypeName: program.nom,
+                  })
+                }
               />
             ))}
           </View>
@@ -188,19 +193,33 @@ export function HomeScreen({ navigation }: Props) {
   );
 }
 
-function ProgramCard({ program, onStart }: { program: SeanceType; onStart: () => void }) {
+function ProgramCard({
+  program,
+  onStart,
+  onEdit,
+}: {
+  program: SeanceType;
+  onStart: () => void;
+  onEdit: () => void;
+}) {
   return (
     <Card variant="surface" style={styles.programCard}>
+      <View style={styles.programInfo}>
+        <Text variant="headingSmall">{program.nom}</Text>
+        {program.description !== null && (
+          <Text variant="bodySmall" color="textSecondary">
+            {program.description}
+          </Text>
+        )}
+      </View>
       <View style={styles.programRow}>
-        <View style={styles.programInfo}>
-          <Text variant="headingSmall">{program.nom}</Text>
-          {program.description !== null && (
-            <Text variant="bodySmall" color="textSecondary">
-              {program.description}
-            </Text>
-          )}
-        </View>
-        <Button label={strings.home.startSeance} size="sm" onPress={onStart} />
+        <Button label={strings.programs.editButton} size="sm" variant="ghost" onPress={onEdit} />
+        <Button
+          label={strings.home.startSeance}
+          size="sm"
+          onPress={onStart}
+          style={styles.startBtn}
+        />
       </View>
     </Card>
   );
@@ -252,18 +271,19 @@ const styles = StyleSheet.create({
   seanceZeroDesc: {
     lineHeight: 20,
   },
-  startBtn: {},
   programCard: {
     marginBottom: 0,
+    gap: theme.spacing.md,
+  },
+  programInfo: {
+    gap: theme.spacing.xs,
   },
   programRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: theme.spacing.md,
+    gap: theme.spacing.sm,
   },
-  programInfo: {
+  startBtn: {
     flex: 1,
-    gap: theme.spacing.xs,
   },
 });

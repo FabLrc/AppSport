@@ -1,7 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import { HomeScreen } from '@/features/training/screens/HomeScreen';
-import { PlaceholderScreen } from '@/features/_placeholder/PlaceholderScreen';
+import { SettingsScreen } from '@/features/settings/SettingsScreen';
 import { theme } from '@/shared/theme';
 import { strings } from '@/shared/strings';
 
@@ -29,7 +29,7 @@ export function MainTabs() {
       <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: strings.tabs.home }} />
       <Tab.Screen
         name="Settings"
-        component={PlaceholderScreen}
+        component={SettingsScreen}
         options={{ tabBarLabel: strings.tabs.settings }}
       />
     </Tab.Navigator>

@@ -5,6 +5,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen';
 import { WorkoutSessionScreen } from '@/features/training/screens/WorkoutSessionScreen';
 import { WorkoutSummaryScreen } from '@/features/training/screens/WorkoutSummaryScreen';
+import { ExerciceHistoryScreen } from '@/features/training/screens/ExerciceHistoryScreen';
+import { ProgramListScreen } from '@/features/training/screens/ProgramListScreen';
+import { ProgramEditScreen } from '@/features/training/screens/ProgramEditScreen';
+import { ExercicePickerScreen } from '@/features/training/screens/ExercicePickerScreen';
 import { useProfileStore } from '@/state/profileStore';
 import { theme } from '@/shared/theme';
 
@@ -45,6 +49,10 @@ export function RootNavigator() {
             component={WorkoutSummaryScreen}
             options={{ presentation: 'fullScreenModal', gestureEnabled: false }}
           />
+          <Stack.Screen name="ExerciceHistory" component={ExerciceHistoryScreen} />
+          <Stack.Screen name="ProgramList" component={ProgramListScreen} />
+          <Stack.Screen name="ProgramEdit" component={ProgramEditScreen} />
+          <Stack.Screen name="ExercicePicker" component={ExercicePickerScreen} />
         </>
       )}
     </Stack.Navigator>
