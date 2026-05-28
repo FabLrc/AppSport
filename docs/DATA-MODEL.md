@@ -46,18 +46,21 @@ Une seule ligne par installation (cahier section 6 — Profil).
 | `created_at`             | `TEXT NOT NULL DEFAULT (datetime('now'))` |
 | `updated_at`             | `TEXT NOT NULL DEFAULT (datetime('now'))` |
 
-#### `onboarding_progression` — ⏳ Lot 6
+#### `onboarding_progression` — ✅ Lot 6
 
-État de la quête de profil et des nudges (section 9.1 du cahier).
+État de la quête de profil (section 9.1 du cahier). Singleton id=1.
 
-| Colonne                    | Type                                 | Notes                                                              |
-| -------------------------- | ------------------------------------ | ------------------------------------------------------------------ |
-| `id`                       | `INTEGER PRIMARY KEY CHECK (id = 1)` | une seule ligne                                                    |
-| `mensurations_configurees` | `INTEGER NOT NULL DEFAULT 0`         | bool                                                               |
-| `rappels_configures`       | `INTEGER NOT NULL DEFAULT 0`         |
-| `nutrition_configuree`     | `INTEGER NOT NULL DEFAULT 0`         |
-| `planning_configure`       | `INTEGER NOT NULL DEFAULT 0`         |
-| `nudges_state`             | `TEXT NOT NULL DEFAULT '{}'`         | JSON sérialisé : `{ <nudge_key>: 'shown' \| 'ignored' \| 'done' }` |
+| Colonne                   | Type                                 | Notes                                 |
+| ------------------------- | ------------------------------------ | ------------------------------------- |
+| `id`                      | `INTEGER PRIMARY KEY CHECK (id = 1)` | une seule ligne                       |
+| `mensurations_configure`  | `INTEGER NOT NULL DEFAULT 0`         | bool — true après première mensuration |
+| `rappels_configure`       | `INTEGER NOT NULL DEFAULT 0`         | bool — true à la première visite RemindersScreen |
+| `nutrition_configure`     | `INTEGER NOT NULL DEFAULT 0`         | bool — true après NutritionSetupScreen |
+| `planning_configure`      | `INTEGER NOT NULL DEFAULT 0`         | bool — true après sauvegarde MacroPlanningScreen |
+| `mensurations_xp_donne`   | `INTEGER NOT NULL DEFAULT 0`         | bool — évite le double-award XP onboarding |
+| `rappels_xp_donne`        | `INTEGER NOT NULL DEFAULT 0`         |
+| `nutrition_xp_donne`      | `INTEGER NOT NULL DEFAULT 0`         |
+| `planning_xp_donne`       | `INTEGER NOT NULL DEFAULT 0`         |
 
 #### `exercice` — ✅ Lot 1
 
@@ -259,23 +262,36 @@ Affectation d'activité par jour de la semaine.
 
 À voir au Lot 6 : table `journal_rappel_occurrence` pour le suivi XP des rappels respectés.
 
-### Lot 6 — Gamification, nutrition
+### Lot 6 — Gamification, nutrition ✅
 
-#### `objectif_nutritionnel` — ⏳ Lot 6
+#### `objectif_nutritionnel` — ✅ Lot 6
 
-| Colonne             | Type                                 | Notes           |
-| ------------------- | ------------------------------------ | --------------- |
-| `id`                | `INTEGER PRIMARY KEY CHECK (id = 1)` | une seule ligne |
-| `kcal_cible`        | `INTEGER NOT NULL`                   |
-| `proteines_g_cible` | `INTEGER NOT NULL`                   |
+Singleton id=1 pré-seedé (kcal=2000, protéines=150 g).
 
-#### `validation_nutrition_quotidienne` — ⏳ Lot 6
+| Colonne      | Type                                 | Notes                    |
+| ------------ | ------------------------------------ | ------------------------ |
+| `id`         | `INTEGER PRIMARY KEY CHECK (id = 1)` | une seule ligne          |
+| `kcal_cible` | `INTEGER NOT NULL DEFAULT 2000`      |                          |
+| `proteines_g`| `INTEGER NOT NULL DEFAULT 150`       | grammes (pas de suffixe) |
+
+#### `validation_nutrition_quotidienne` — ✅ Lot 6
 
 | Colonne      | Type                                      | Notes                                 |
 | ------------ | ----------------------------------------- | ------------------------------------- |
 | `date`       | `TEXT PRIMARY KEY`                        | format YYYY-MM-DD, une ligne par jour |
-| `atteint`    | `INTEGER NOT NULL`                        | bool                                  |
+| `atteint`    | `INTEGER NOT NULL DEFAULT 0`              | bool                                  |
 | `created_at` | `TEXT NOT NULL DEFAULT (datetime('now'))` |
+
+#### Notes d'implémentation Lot 6
+
+- **XP** : constantes dans `src/domain/xp/index.ts`. `addXpToProfil(amount)` dans
+  `profilRepository` — lit le XP courant, recalcule le rang via `getRangForXp`, met à jour en base.
+- **Rangs** : `src/domain/ranks/index.ts` — 8 rangs (E/D/C/B/A/S/S+/S++) avec seuils XP et titres.
+  `getProgressionToNextRang(xp)` retourne le pourcentage de progression vers le rang suivant.
+- **Streak** : `src/domain/streak/index.ts` — logique pure. Gel de streak disponible à partir de
+  7 jours consécutifs ; consommé automatiquement si l'écart est de 2 jours.
+- **Onboarding** : `onboardingProgressionRepository` — `marquerModuleComplete` retourne `true` si
+  premier marquage (permet d'attribuer l'XP une seule fois). Double protection via `*_xp_donne`.
 
 L'XP n'est **pas** stockée comme entité distincte (cf. cahier section 6 dernière
 note) : c'est une valeur dérivée du total des séances, courses, rappels

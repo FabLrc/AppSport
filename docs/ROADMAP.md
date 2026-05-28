@@ -127,21 +127,25 @@ Cahier section 5.8, section 8, section 10.
 - ✅ `expo-notifications` v0.32 installé + plugin configuré dans `app.config.ts`
 - ⚠️ Notification Lot 3 (repos en avant-plan) : marquée résolue — la notification arrière-plan est maintenant fonctionnelle
 
-## Lot 6 — Gamification + nutrition + onboarding progressif ⏳
+## Lot 6 — Gamification + nutrition + onboarding progressif ✅
 
 Cahier sections 5.7, 7.2, 7.3, 7.4, 9.1, section 10.
 
-À livrer :
-
-- Calcul XP (`src/domain/xp/`)
-- Rangs E→S++ et titres (`src/domain/ranks/`)
-- Streak avec gel de streak (`src/domain/streak/`)
-- Messages de félicitation sur événements clés
-- Dashboard finalisé (rang + barre XP + streak + prochaine séance)
-- Objectifs nutritionnels + validation quotidienne (tables `objectif_nutritionnel`,
-  `validation_nutrition_quotidienne`)
-- Section « ⚡ Gagne tes premiers XP » (table `onboarding_progression`)
-- Nudges contextuels (bandeaux non intrusifs, logique d'extinction après 2 ignores)
+- ✅ `src/domain/xp/` : constantes XP pour tous les événements (séances, courses, mensurations, nutrition, onboarding, malus)
+- ✅ `src/domain/ranks/` : 8 rangs E→S++ avec seuils XP, titres et mottos
+- ✅ `src/domain/streak/` : logique pure `calculerStreakApresActivite` — gel automatique à gap=2 si disponible, déblocage du gel à 7 jours consécutifs
+- ✅ Migration 006 — tables `objectif_nutritionnel`, `validation_nutrition_quotidienne`, `onboarding_progression`
+- ✅ `profilRepository` : `addXpToProfil(amount)` (lecture → calcul → maj rang), `updateStreakApresActivite(today)`
+- ✅ `nutritionRepository` : `getObjectifNutritionnel`, `updateObjectifNutritionnel`, `getValidationAujourdhui`, `setValidationAujourdhui`
+- ✅ `onboardingProgressionRepository` : `marquerModuleComplete` (retourne `true` si première fois), `marquerXpDonne`
+- ✅ `NutritionSetupScreen` : saisie kcal/protéines + XP onboarding à la première config
+- ✅ `HomeScreen` revu : badge rang, streak 🔥, barre de progression XP vers rang suivant, section onboarding « ⚡ Gagne tes premiers XP », carte nutrition du jour (valider / invalider)
+- ✅ Attribution XP dans `WorkoutSummaryScreen` (séances muscu + streak)
+- ✅ Attribution XP dans `AddRunScreen` (courses + streak + détection record)
+- ✅ Attribution XP dans `AddMeasurementScreen` (mensurations + onboarding)
+- ✅ Attribution XP dans `MacroPlanningScreen` (onboarding planning + re-sync rappels)
+- ✅ Attribution XP dans `RemindersScreen` (onboarding rappels à la première visite)
+- ⚠️ Nudges contextuels (logique d'extinction) non implémentés — section onboarding disparaît naturellement quand tous les modules sont configurés
 
 ## Lot 7 — Sauvegarde ⏳
 
