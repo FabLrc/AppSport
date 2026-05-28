@@ -13,10 +13,11 @@ import { getAllSeanceTypes } from '@/db/repositories/seanceTypeRepository';
 import { createSeance, getSeanceEnCours, abandonSeance } from '@/db/repositories/seanceRepository';
 import { countSeriesParExercice } from '@/db/repositories/seriePerformanceRepository';
 import { getExercicesAvecConfig } from '@/db/repositories/seanceTypeRepository';
+import { getActiviteAujourdhui } from '@/db/repositories/macroPlanningRepository';
 import { useSessionStore } from '@/state/sessionStore';
 import { strings } from '@/shared/strings';
 import { theme } from '@/shared/theme';
-import type { Seance, SeanceType } from '@/db/repositories/types';
+import type { ActivitePlanning, Seance, SeanceType } from '@/db/repositories/types';
 import type { RootStackParamList, MainTabParamList } from '@/app/navigation/types';
 
 type Props = CompositeScreenProps<
@@ -29,12 +30,18 @@ export function HomeScreen({ navigation }: Props) {
   const { startSession } = useSessionStore();
   const [seanceTypes, setSeanceTypes] = useState<SeanceType[]>([]);
   const [interruptedSeance, setInterruptedSeance] = useState<Seance | null>(null);
+  const [activiteJour, setActiviteJour] = useState<ActivitePlanning | null>(null);
   const [loading, setLoading] = useState(true);
 
   const loadData = useCallback(async () => {
-    const [types, enCours] = await Promise.all([getAllSeanceTypes(), getSeanceEnCours()]);
+    const [types, enCours, activite] = await Promise.all([
+      getAllSeanceTypes(),
+      getSeanceEnCours(),
+      getActiviteAujourdhui().catch(() => null),
+    ]);
     setSeanceTypes(types);
     setInterruptedSeance(enCours);
+    setActiviteJour(activite);
     setLoading(false);
   }, []);
 
@@ -114,6 +121,11 @@ export function HomeScreen({ navigation }: Props) {
           {greeting}
         </Text>
 
+        {/* Activité du jour (macro-planning) */}
+        {activiteJour !== null && (
+          <ActivityCard activite={activiteJour} onAddRun={() => navigation.navigate('AddRun')} />
+        )}
+
         {/* Bannière reprise séance interrompue */}
         {interruptedSeance !== null && (
           <Card variant="elevated" style={styles.resumeCard}>
@@ -192,6 +204,52 @@ export function HomeScreen({ navigation }: Props) {
     </Screen>
   );
 }
+
+function ActivityCard({
+  activite,
+  onAddRun,
+}: {
+  activite: ActivitePlanning;
+  onAddRun: () => void;
+}) {
+  if (activite === 'repos') {
+    return (
+      <Card variant="surface" style={activityStyles.card}>
+        <Text variant="headingSmall">{strings.planning.todayRest}</Text>
+        <Text variant="bodySmall" color="textSecondary">
+          {strings.planning.todayRestMsg}
+        </Text>
+      </Card>
+    );
+  }
+  if (activite === 'course') {
+    return (
+      <Card variant="elevated" style={activityStyles.card}>
+        <Text variant="headingSmall" color="primary">
+          🏃 {strings.planning.todayActivity}
+        </Text>
+        <Text variant="bodySmall" color="textSecondary">
+          {strings.planning.todayRunMsg}
+        </Text>
+        <Button label={strings.running.addRun} size="sm" onPress={onAddRun} />
+      </Card>
+    );
+  }
+  return (
+    <Card variant="elevated" style={activityStyles.card}>
+      <Text variant="headingSmall" color="primary">
+        💪 {strings.planning.todayActivity}
+      </Text>
+      <Text variant="bodySmall" color="textSecondary">
+        {strings.planning.todayMuscuMsg}
+      </Text>
+    </Card>
+  );
+}
+
+const activityStyles = StyleSheet.create({
+  card: { gap: theme.spacing.sm },
+});
 
 function ProgramCard({
   program,

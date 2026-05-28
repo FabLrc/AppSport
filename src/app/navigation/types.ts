@@ -10,11 +10,15 @@ export type RootStackParamList = {
   ExercicePicker: { seanceTypeId: number; seanceTypeName: string };
   // Lot 2 — suivi corporel
   AddMeasurement: { mesureId?: number } | undefined;
+  // Lot 4 — course à pied
+  AddRun: undefined;
+  MacroPlanning: undefined;
 };
 
 export type MainTabParamList = {
   Home: undefined;
   BodyTracking: undefined;
+  Running: undefined;
   Settings: undefined;
 };
 

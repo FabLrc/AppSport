@@ -100,3 +100,43 @@ export interface MesureCorporelle {
 
 export type CreateMesureCorporelleInput = Omit<MesureCorporelle, 'id' | 'created_at'>;
 export type UpdateMesureCorporelleInput = Partial<Omit<MesureCorporelle, 'id' | 'created_at'>>;
+
+export type ActivitePlanning = 'musculation_haut' | 'musculation_bas' | 'course' | 'repos';
+
+export interface MacroPlanning {
+  id: 1;
+  lundi: ActivitePlanning;
+  mardi: ActivitePlanning;
+  mercredi: ActivitePlanning;
+  jeudi: ActivitePlanning;
+  vendredi: ActivitePlanning;
+  samedi: ActivitePlanning;
+  dimanche: ActivitePlanning;
+}
+
+export type JourSemaine = keyof Omit<MacroPlanning, 'id'>;
+
+export interface Course {
+  id: number;
+  date: string;
+  distance_km: number;
+  duree_minutes: number;
+  allure_min_par_km: number;
+  ressenti: number | null;
+  statut: 'completee';
+  xp_attribue: number;
+  notes: string | null;
+  created_at: string;
+}
+
+export type CreateCourseInput = Omit<Course, 'id' | 'created_at' | 'allure_min_par_km'>;
+
+export interface CourseRecords {
+  distanceMax: number | null;
+  allureMin: number | null;
+}
+
+export interface VolumeStats {
+  hebdo: number;
+  mensuel: number;
+}

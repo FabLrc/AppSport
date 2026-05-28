@@ -10,6 +10,8 @@ import { ProgramListScreen } from '@/features/training/screens/ProgramListScreen
 import { ProgramEditScreen } from '@/features/training/screens/ProgramEditScreen';
 import { ExercicePickerScreen } from '@/features/training/screens/ExercicePickerScreen';
 import { AddMeasurementScreen } from '@/features/body-tracking/screens/AddMeasurementScreen';
+import { AddRunScreen } from '@/features/running/screens/AddRunScreen';
+import { MacroPlanningScreen } from '@/features/planning/screens/MacroPlanningScreen';
 import { useProfileStore } from '@/state/profileStore';
 import { theme } from '@/shared/theme';
 
@@ -59,6 +61,12 @@ export function RootNavigator() {
             component={AddMeasurementScreen}
             options={{ presentation: 'modal' }}
           />
+          <Stack.Screen
+            name="AddRun"
+            component={AddRunScreen}
+            options={{ presentation: 'modal' }}
+          />
+          <Stack.Screen name="MacroPlanning" component={MacroPlanningScreen} />
         </>
       )}
     </Stack.Navigator>
