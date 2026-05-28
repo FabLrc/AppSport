@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
+  FlatList,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -27,6 +29,12 @@ type Props = NativeStackScreenProps<RootStackParamList, 'WorkoutSession'>;
 const XP_SEANCE = 100;
 const XP_SEANCE_ZERO_FIRST = 80;
 
+function formatTime(totalSeconds: number): string {
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
 export function WorkoutSessionScreen({ navigation, route }: Props) {
   const { seanceId } = route.params;
   const session = useSessionStore((s) => s.session);
@@ -37,10 +45,93 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
     allSerisDoneForCurrent,
     isLastExercice,
     currentExercice,
+    reorderRemainingExercices,
   } = useSessionStore();
 
   const [saving, setSaving] = useState(false);
 
+  // --- Chronomètre de repos ---
+  const [restActive, setRestActive] = useState(false);
+  const [restElapsed, setRestElapsed] = useState(0);
+  const restIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (restIntervalRef.current !== null) {
+        clearInterval(restIntervalRef.current);
+      }
+    };
+  }, []);
+
+  const handleToggleTimer = () => {
+    if (restActive) {
+      if (restIntervalRef.current !== null) {
+        clearInterval(restIntervalRef.current);
+        restIntervalRef.current = null;
+      }
+      setRestActive(false);
+      setRestElapsed(0);
+    } else {
+      setRestActive(true);
+      setRestElapsed(0);
+      restIntervalRef.current = setInterval(() => {
+        setRestElapsed((prev) => prev + 1);
+      }, 1000);
+    }
+  };
+
+  const stopTimer = () => {
+    if (restIntervalRef.current !== null) {
+      clearInterval(restIntervalRef.current);
+      restIntervalRef.current = null;
+    }
+    setRestActive(false);
+    setRestElapsed(0);
+  };
+
+  // --- Modal de réorganisation des exercices restants ---
+  const [reorderVisible, setReorderVisible] = useState(false);
+  const [reorderList, setReorderList] = useState<ExerciceAvecConfig[]>([]);
+
+  const openReorder = () => {
+    if (session === null) return;
+    const remaining = session.exercises.slice(session.currentExerciseIndex + 1);
+    setReorderList([...remaining]);
+    setReorderVisible(true);
+  };
+
+  const handleReorderMoveUp = (index: number) => {
+    if (index === 0) return;
+    setReorderList((prev) => {
+      const next = [...prev];
+      const a = next[index - 1];
+      const b = next[index];
+      if (a === undefined || b === undefined) return prev;
+      next[index - 1] = b;
+      next[index] = a;
+      return next;
+    });
+  };
+
+  const handleReorderMoveDown = (index: number) => {
+    setReorderList((prev) => {
+      if (index >= prev.length - 1) return prev;
+      const next = [...prev];
+      const a = next[index];
+      const b = next[index + 1];
+      if (a === undefined || b === undefined) return prev;
+      next[index] = b;
+      next[index + 1] = a;
+      return next;
+    });
+  };
+
+  const handleReorderDone = () => {
+    reorderRemainingExercices(reorderList);
+    setReorderVisible(false);
+  };
+
+  // --- Logique séance ---
   const currentEx = currentExercice();
   const allDone = allSerisDoneForCurrent();
   const isLast = isLastExercice();
@@ -79,6 +170,7 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
     difficulte: DifficulteSubjective | null,
   ) => {
     setSaving(true);
+    stopTimer(); // stoppe le chrono entre les séries
     try {
       await createSerie({
         seance_id: seanceId,
@@ -95,11 +187,13 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
   };
 
   const handleNextExercise = () => {
+    stopTimer();
     advanceToNextExercise();
   };
 
   const handleFinish = async () => {
     setSaving(true);
+    stopTimer();
     try {
       const allBodyweight = session.exercises.every(
         (e) => e.exercice.mode_charge === 'poids_corps',
@@ -125,6 +219,7 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
         text: strings.workout.abandonConfirmYes,
         style: 'destructive',
         onPress: async () => {
+          stopTimer();
           await completeSeance(seanceId, 0);
           clearSession();
           navigation.goBack();
@@ -135,6 +230,9 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
 
   const totalSeriesAll = session.exercises.reduce((acc, e) => acc + e.series_cible, 0);
   const doneSeriesAll = Object.values(session.completedSeriesCount).reduce((acc, n) => acc + n, 0);
+
+  // Exercices restants (après le courant) pour la réorganisation
+  const remainingCount = session.exercises.length - session.currentExerciseIndex - 1;
 
   return (
     <Screen paddingHorizontal={0}>
@@ -162,7 +260,7 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Exercise name + description */}
+          {/* Nom exercice */}
           <View style={styles.exerciseHeader}>
             <Text variant="display" style={styles.exerciseName}>
               {exercice.nom}
@@ -174,7 +272,7 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
             )}
           </View>
 
-          {/* Series progress dots */}
+          {/* Indicateur de séries (points) */}
           <View style={styles.seriesDots}>
             {Array.from({ length: series_cible }, (_, i) => (
               <View
@@ -188,7 +286,7 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
             ))}
           </View>
 
-          {/* Serie info */}
+          {/* Info série courante */}
           <View style={styles.serieInfo}>
             <Text variant="headingSmall" color="primary">
               {allDone ? strings.workout.allSeriesDone : serieLabel}
@@ -198,7 +296,7 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
             </Text>
           </View>
 
-          {/* Form de saisie — clé pour forcer le remount à chaque nouvelle série */}
+          {/* Formulaire de saisie — clé pour forcer le remount à chaque série */}
           {!allDone && (
             <SerieInputForm
               key={`${session.currentExerciseIndex}-${completedForCurrent}`}
@@ -208,7 +306,7 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
             />
           )}
 
-          {/* Navigation buttons when series done */}
+          {/* Boutons de navigation (quand toutes les séries sont faites) */}
           {allDone && (
             <View style={styles.navButtons}>
               {!isLast ? (
@@ -229,9 +327,38 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
           )}
         </ScrollView>
 
-        {/* Upcoming exercises */}
+        {/* Chronomètre de repos — barre fixe avant les exercices restants */}
+        <View style={styles.timerBar}>
+          {restActive ? (
+            <>
+              <Text variant="numeric" style={styles.timerText}>
+                {formatTime(restElapsed)}
+              </Text>
+              <Pressable onPress={handleToggleTimer} style={styles.timerStopBtn}>
+                <Text variant="caption" color="textSecondary">
+                  {strings.restTimer.stop}
+                </Text>
+              </Pressable>
+            </>
+          ) : (
+            <Pressable onPress={handleToggleTimer} style={styles.timerStartBtn}>
+              <Text variant="caption" color="textMuted">
+                ⏱ {strings.restTimer.label}
+              </Text>
+            </Pressable>
+          )}
+        </View>
+
+        {/* Liste des exercices restants + bouton réorganiser */}
         {session.exercises.length > 1 && (
-          <View style={styles.upcomingList}>
+          <View style={styles.upcomingContainer}>
+            {remainingCount > 1 && (
+              <Pressable onPress={openReorder} style={styles.reorderBtn}>
+                <Text variant="caption" color="textMuted">
+                  {strings.reorder.button} ↕
+                </Text>
+              </Pressable>
+            )}
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {session.exercises.map((ex, idx) => {
                 const done = session.completedSeriesCount[ex.exercice.id] ?? 0;
@@ -260,12 +387,74 @@ export function WorkoutSessionScreen({ navigation, route }: Props) {
           </View>
         )}
       </KeyboardAvoidingView>
+
+      {/* Modal de réorganisation */}
+      <Modal visible={reorderVisible} transparent animationType="slide">
+        <View style={modalStyles.overlay}>
+          <View style={modalStyles.container}>
+            <View style={modalStyles.header}>
+              <Text variant="headingSmall">{strings.reorder.title}</Text>
+              <Pressable onPress={handleReorderDone} hitSlop={8}>
+                <Text variant="bodySmall" color="primary">
+                  {strings.reorder.done}
+                </Text>
+              </Pressable>
+            </View>
+            <Text variant="caption" color="textMuted" style={modalStyles.hint}>
+              {strings.reorder.hint}
+            </Text>
+            <FlatList
+              data={reorderList}
+              keyExtractor={(item) => String(item.exercice.id)}
+              style={modalStyles.list}
+              renderItem={({ item, index }) => (
+                <View style={modalStyles.row}>
+                  <Text variant="body" style={modalStyles.rowName} numberOfLines={1}>
+                    {item.exercice.nom}
+                  </Text>
+                  <View style={modalStyles.arrows}>
+                    <Pressable
+                      onPress={() => handleReorderMoveUp(index)}
+                      disabled={index === 0}
+                      hitSlop={8}
+                      style={[modalStyles.arrowBtn, index === 0 ? modalStyles.arrowDisabled : null]}
+                    >
+                      <Text variant="bodySmall" color={index === 0 ? 'textMuted' : 'textSecondary'}>
+                        ↑
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => handleReorderMoveDown(index)}
+                      disabled={index === reorderList.length - 1}
+                      hitSlop={8}
+                      style={[
+                        modalStyles.arrowBtn,
+                        index === reorderList.length - 1 ? modalStyles.arrowDisabled : null,
+                      ]}
+                    >
+                      <Text
+                        variant="bodySmall"
+                        color={index === reorderList.length - 1 ? 'textMuted' : 'textSecondary'}
+                      >
+                        ↓
+                      </Text>
+                    </Pressable>
+                  </View>
+                </View>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
     </Screen>
   );
 }
 
-// Formulaire de saisie d'une série. Monté avec une clé unique par série/exercice :
-// quand la clé change, React recrée le composant et son state local est réinitialisé.
+// ---------------------------------------------------------------------------
+// Formulaire de saisie d'une série
+// Monté avec une clé unique par série/exercice — React recrée le composant
+// et son state local est réinitialisé sans useEffect de reset.
+// ---------------------------------------------------------------------------
 function SerieInputForm({
   exerciceConfig,
   saving,
@@ -302,7 +491,7 @@ function SerieInputForm({
 
   return (
     <View style={formStyles.container}>
-      {/* Charge input (weighted only) */}
+      {/* Charge (exercices avec charge uniquement) */}
       {!isPoidsCorp && (
         <View style={formStyles.inputGroup}>
           <Text variant="label" color="textSecondary">
@@ -321,7 +510,7 @@ function SerieInputForm({
         </View>
       )}
 
-      {/* Reps / duration */}
+      {/* Répétitions / durée */}
       <View style={formStyles.inputGroup}>
         <Text variant="label" color="textSecondary">
           {isTimed ? strings.workout.durationLabel : strings.workout.repsLabel}
@@ -339,7 +528,7 @@ function SerieInputForm({
         />
       </View>
 
-      {/* Difficulty (bodyweight only) */}
+      {/* Difficulté subjective (poids du corps uniquement) */}
       {isPoidsCorp && (
         <View style={formStyles.difficulteGroup}>
           <Text variant="label" color="textSecondary">
@@ -396,6 +585,9 @@ function SerieInputForm({
   );
 }
 
+// ---------------------------------------------------------------------------
+// Styles
+// ---------------------------------------------------------------------------
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   center: {
@@ -450,11 +642,45 @@ const styles = StyleSheet.create({
   navButtons: {
     gap: theme.spacing.md,
   },
-  upcomingList: {
+  // --- Timer ---
+  timerBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing.xl,
+    paddingVertical: theme.spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+    gap: theme.spacing.md,
+    minHeight: 44,
+  },
+  timerText: {
+    color: theme.colors.primary,
+    fontSize: 22,
+    letterSpacing: 2,
+  },
+  timerStopBtn: {
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  timerStartBtn: {
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
+  },
+  // --- Upcoming exercises strip ---
+  upcomingContainer: {
     borderTopWidth: 1,
     borderTopColor: theme.colors.border,
     paddingVertical: theme.spacing.sm,
     paddingHorizontal: theme.spacing.xl,
+    gap: theme.spacing.xs,
+  },
+  reorderBtn: {
+    alignSelf: 'flex-end',
+    paddingVertical: theme.spacing.xs,
   },
   upcomingItem: {
     paddingHorizontal: theme.spacing.md,
@@ -507,5 +733,62 @@ const formStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.border,
     alignItems: 'center',
+  },
+});
+
+const modalStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: '#00000088',
+    justifyContent: 'flex-end',
+  },
+  container: {
+    backgroundColor: theme.colors.surfaceElevated,
+    borderTopLeftRadius: theme.radius.xxl,
+    borderTopRightRadius: theme.radius.xxl,
+    paddingTop: theme.spacing.xl,
+    paddingHorizontal: theme.spacing.xl,
+    paddingBottom: theme.spacing.xxxl,
+    maxHeight: '70%',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing.sm,
+  },
+  hint: {
+    marginBottom: theme.spacing.md,
+  },
+  list: {
+    flexGrow: 0,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: theme.spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+    gap: theme.spacing.md,
+  },
+  rowName: {
+    flex: 1,
+  },
+  arrows: {
+    flexDirection: 'row',
+    gap: theme.spacing.sm,
+  },
+  arrowBtn: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  arrowDisabled: {
+    opacity: 0.3,
   },
 });
