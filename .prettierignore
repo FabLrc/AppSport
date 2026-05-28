@@ -8,3 +8,7 @@ ios
 coverage
 package-lock.json
 *.lock
+
+# Cahier des charges : source de vérité produit, conserve la mise en page
+# d'origine pour minimiser le diff avec la version maître.
+docs/cahier-des-charges.md
