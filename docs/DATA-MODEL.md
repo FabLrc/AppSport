@@ -135,7 +135,7 @@ Une série effectuée dans une séance.
 
 ### Lot 2 — Suivi corporel
 
-#### `mesure_corporelle` — ⏳ Lot 2
+#### `mesure_corporelle` — ✅ Lot 2
 
 Relevé hebdomadaire.
 
@@ -152,6 +152,18 @@ Relevé hebdomadaire.
 | `photo_uri`        | `TEXT`                                    | chemin de fichier local (filesystem expo)                  |
 | `notes`            | `TEXT`                                    |
 | `created_at`       | `TEXT NOT NULL DEFAULT (datetime('now'))` |
+
+#### Notes d'implémentation Lot 2
+
+- **Photos** : copiées dans `FileSystem.Paths.document/photos/` via la nouvelle API `expo-file-system`
+  v18 (classes `File`, `Directory`, `Paths`). Le chemin stocké en base est le `uri` local retourné
+  par `destFile.uri`.
+- **Repository** : `src/db/repositories/mesureCorporelleRepository.ts` — fonctions `createMesure`,
+  `getAllMesures` (tri DESC par date), `getMesureById`, `updateMesure` (mise à jour partielle), `deleteMesure`.
+- **Écrans** : `src/features/body-tracking/screens/` — `BodyTrackingScreen` (onglet) + `AddMeasurementScreen`
+  (modal).
+- **Composant LineChart** : réutilise `src/shared/components/LineChart.tsx` du Lot 3 (react-native-svg),
+  sélecteur de métrique par chips horizontaux.
 
 ### Lot 3 — Intelligence d'entraînement ✅
 

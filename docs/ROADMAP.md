@@ -53,20 +53,20 @@ Cahier section 10, ligne « Lot 1 ». Premier lot fonctionnel ; rend l'app
   `seanceRepository`, `seriePerformanceRepository`
 - ✅ Stores Zustand : `profileStore`, `sessionStore`
 
-## Lot 2 — Suivi corporel ⏳
+## Lot 2 — Suivi corporel ✅
 
 Cahier section 5.5, section 10. Saisie hebdomadaire poids / mensurations /
 photo, courbes par mesure.
 
-À livrer :
-
-- Écran de saisie de mesures (poids + tours principaux)
-- Stockage photo via `expo-image-picker` + `expo-file-system`
-- Galerie photos datées
-- Courbes par mesure (composant de chart à arrêter)
-- Table `mesure_corporelle` + repository
-
-Dépendances à installer : `expo-image-picker`, `expo-file-system`, lib de chart.
+- ✅ Migration 003 — table `mesure_corporelle` + index sur `date`
+- ✅ Types `MesureCorporelle`, `CreateMesureCorporelleInput`, `UpdateMesureCorporelleInput`
+- ✅ `mesureCorporelleRepository` : CRUD complet (create, read, update, delete)
+- ✅ `AddMeasurementScreen` : saisie poids + 5 tours + photo (galerie/caméra) + notes
+- ✅ `BodyTrackingScreen` : résumé dernière mesure, courbes par métrique (LineChart SVG), galerie photos datée, historique éditable/supprimable
+- ✅ Visionneuse photo plein écran (modal)
+- ✅ Onglet « Corps » dans la barre de navigation principale
+- ✅ `expo-image-picker` + `expo-file-system` (API v18 : Paths/File/Directory)
+- ✅ Permissions caméra/galerie déclarées dans `app.config.ts`
 
 ## Lot 3 — Intelligence d'entraînement ✅
 
