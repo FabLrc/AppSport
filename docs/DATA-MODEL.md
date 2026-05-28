@@ -182,9 +182,9 @@ sur les tables existantes via de nouvelles fonctions de repository :
 
 Aucune migration n'a été nécessaire pour ce lot.
 
-### Lot 4 — Course à pied
+### Lot 4 — Course à pied ✅
 
-#### `macro_planning` — ⏳ Lot 4 (peut arriver dès Lot 1 si planning utilisé tôt)
+#### `macro_planning` — ✅ Lot 4
 
 Affectation d'activité par jour de la semaine.
 
@@ -199,20 +199,35 @@ Affectation d'activité par jour de la semaine.
 | `samedi`   | `TEXT NOT NULL DEFAULT 'repos'`      |
 | `dimanche` | `TEXT NOT NULL DEFAULT 'repos'`      |
 
-#### `course` — ⏳ Lot 4
+#### `course` — ✅ Lot 4
 
-| Colonne             | Type                                      | Notes                                   |
-| ------------------- | ----------------------------------------- | --------------------------------------- |
+| Colonne             | Type                                      | Notes                      |
+| ------------------- | ----------------------------------------- | -------------------------- |
 | `id`                | `INTEGER PRIMARY KEY AUTOINCREMENT`       |
 | `date`              | `TEXT NOT NULL`                           |
 | `distance_km`       | `REAL NOT NULL`                           |
 | `duree_minutes`     | `REAL NOT NULL`                           |
-| `allure_min_par_km` | `REAL NOT NULL`                           | calculé = duree / distance              |
-| `ressenti`          | `INTEGER`                                 | échelle 1-5 ou 1-10, à arrêter au Lot 4 |
+| `allure_min_par_km` | `REAL NOT NULL`                           | calculé = duree / distance |
+| `ressenti`          | `INTEGER`                                 | échelle 1-5                |
 | `statut`            | `TEXT NOT NULL DEFAULT 'completee'`       |
-| `xp_attribue`       | `INTEGER NOT NULL DEFAULT 0`              |
+| `xp_attribue`       | `INTEGER NOT NULL DEFAULT 0`              | 100 normal / 150 record    |
 | `notes`             | `TEXT`                                    |
 | `created_at`        | `TEXT NOT NULL DEFAULT (datetime('now'))` |
+
+#### Notes d'implémentation Lot 4
+
+- **Allure** : calculée à la création (`duree_minutes / distance_km`), stockée dénormalisée pour
+  faciliter les agrégats (records, courbe). `formatAllure(n)` dans `src/domain/personal-records/`
+  convertit en `"MM:SS /km"`.
+- **Records personnels** : logique pure dans `src/domain/personal-records/index.ts` —
+  `detecterRecords(nouvelleCourse, historique)` compare distance et allure à l'historique existant
+  avant l'insertion.
+- **Repository course** : `src/db/repositories/courseRepository.ts` — `getVolumeStats()` retourne les
+  km cumulés sur les 7 et 30 derniers jours ; `getCourseRecords()` retourne `MAX(distance_km)` et
+  `MIN(allure_min_par_km)`.
+- **Macro-planning** : singleton `id=1` seedé dans la migration 004 (`INSERT OR IGNORE`). Le repository
+  expose `getActiviteAujourdhui()` qui mappe `new Date().getDay()` (0=Dimanche) sur les colonnes SQLite.
+- **Écrans** : `src/features/running/screens/` + `src/features/planning/screens/MacroPlanningScreen.tsx`.
 
 ### Lot 5 — Rappels
 

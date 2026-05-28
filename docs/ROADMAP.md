@@ -89,19 +89,22 @@ aux programmes et aux suggestions de progression.
 - ✅ Écran Réglages opérationnel (profil + accès aux programmes)
 - ⚠️ Notifications de fin de repos : foreground uniquement — expo-notifications différé au Lot 5
 
-## Lot 4 — Course à pied ⏳
+## Lot 4 — Course à pied ✅
 
 Cahier section 5.6, section 7.5, section 10.
 
-À livrer :
-
-- Saisie manuelle d'une sortie (distance, durée, ressenti)
-- Calcul auto allure moyenne
-- Historique, courbe d'allure
-- Volume hebdo et mensuel
-- Records personnels (`src/domain/personal-records/`)
-- Intégration au macro-planning (table `macro_planning`)
-- Tables `course`, `macro_planning` + repositories
+- ✅ Migration 004 — tables `course` + `macro_planning` (singleton 7 jours, valeur par défaut `repos`)
+- ✅ Types `Course`, `CreateCourseInput`, `CourseRecords`, `VolumeStats`, `MacroPlanning`, `ActivitePlanning`, `JourSemaine`
+- ✅ `courseRepository` : CRUD, stats volume hebdo/mensuel (7 j / 30 j), records (distance max, allure min)
+- ✅ `macroPlanningRepository` : lecture singleton, mise à jour partielle par jour, activité du jour
+- ✅ `src/domain/personal-records/` : détection PR distance + allure (logique pure sans dépendance RN), `formatAllure`
+- ✅ `AddRunScreen` : distance, durée (min+sec), allure calculée en temps réel, ressenti 1-5 colorisé, notes
+- ✅ `RunningScreen` : stats volume hebdo/mensuel, records, courbe allure (LineChart SVG), historique des sorties
+- ✅ `MacroPlanningScreen` : 7 jours × 4 activités (chips colorisés), sauvegarde et retour
+- ✅ Onglet « Running » dans la barre de navigation principale
+- ✅ Détection et affichage des records personnels lors de l'enregistrement d'une sortie (+150 XP PR, +100 XP normal)
+- ✅ `HomeScreen` : carte d'activité du jour pilotée par le macro-planning (repos / course / musculation)
+- ✅ Settings : lien vers `MacroPlanningScreen`
 
 ## Lot 5 — Rappels ⏳
 
