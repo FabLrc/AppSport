@@ -153,10 +153,22 @@ Relevé hebdomadaire.
 | `notes`            | `TEXT`                                    |
 | `created_at`       | `TEXT NOT NULL DEFAULT (datetime('now'))` |
 
-### Lot 3 — Intelligence d'entraînement
+### Lot 3 — Intelligence d'entraînement ✅
 
-Pas de nouvelle table. Cohérence avec `serie_performance` (historique) et
-les règles métier du `domain/progressive-overload/`.
+Pas de nouvelle table. Les fonctionnalités du Lot 3 s'appuient exclusivement
+sur les tables existantes via de nouvelles fonctions de repository :
+
+- **`seriePerformanceRepository`** : `getHistoriqueExercice()` (agrégats par
+  séance, LIMIT 50, ordre chronologique) et `getSeriesParExercicePourSurcharge()`
+  (séries brutes d'une séance pour le moteur de suggestion).
+- **`seanceTypeRepository`** : `addExerciceToSeanceType()`, `removeExerciceFromSeanceType()`,
+  `updateExerciceConfig()`, `reorderExercices()` (via transaction SQLite).
+- **`exerciceRepository`** : `createExercice()` (pour ajout d'exercices personnalisés,
+  non exposé dans l'UI pour l'instant).
+- **`src/domain/progressive-overload/`** : logique pure TypeScript (zero dépendance
+  RN), testable en isolation.
+
+Aucune migration n'a été nécessaire pour ce lot.
 
 ### Lot 4 — Course à pied
 

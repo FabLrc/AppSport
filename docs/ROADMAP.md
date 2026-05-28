@@ -68,19 +68,26 @@ photo, courbes par mesure.
 
 Dépendances à installer : `expo-image-picker`, `expo-file-system`, lib de chart.
 
-## Lot 3 — Intelligence d'entraînement ⏳
+## Lot 3 — Intelligence d'entraînement ✅
 
-Cahier section 7.1, section 10.
+Cahier section 7.1, section 10. Intelligence ajoutée à la séance en cours,
+aux programmes et aux suggestions de progression.
 
-À livrer :
-
-- Réorganisation des exercices en cours de séance (drag handle)
-- Chronomètre de repos intégré + notification locale fin de repos
-- Historique par exercice + courbe de progression
-- Détection de surcharge progressive (`src/domain/progressive-overload/`)
-  - Variante « charge » → suggestion +2,5 kg
-  - Variante « poids du corps » → +2 reps ou variante plus difficile
-- Édition du programme (ajout, suppression, remplacement, réglage séries/reps)
+- ✅ Chronomètre de repos intégré (foreground — notifications différées au Lot 5)
+- ✅ Réorganisation des exercices en cours de séance (boutons ↑/↓ sans bibliothèque de drag-and-drop)
+- ✅ Historique par exercice avec courbe de progression (charge ou reps selon le mode)
+- ✅ Composant SVG `LineChart` réutilisable (`react-native-svg`, sans lib externe)
+- ✅ Détection de surcharge progressive (`src/domain/progressive-overload/`, logique pure sans dépendance RN) :
+  - Variante « charge » → suggestion +2,5 kg (arrondi au 0,5 kg le plus proche)
+  - Variante « poids du corps » → +2 reps ou première variante plus difficile
+- ✅ Suggestions affichées dans le récapitulatif de fin de séance
+- ✅ Édition des programmes :
+  - Ajout d'un exercice depuis le catalogue complet (avec configuration séries/reps)
+  - Suppression avec confirmation
+  - Réglage séries/reps cibles par exercice
+  - Réorganisation de l'ordre (↑/↓)
+- ✅ Écran Réglages opérationnel (profil + accès aux programmes)
+- ⚠️ Notifications de fin de repos : foreground uniquement — expo-notifications différé au Lot 5
 
 ## Lot 4 — Course à pied ⏳
 
