@@ -1,0 +1,57 @@
+{
+  "app": {
+    "name": "AppSport",
+    "slug": "appsport",
+    "scheme": "appsport",
+    "bundleIdentifier": "com.appsport.app",
+    "version": "0.1.0",
+    "tagline": "Le carnet d'entraînement qui te suit, séance après séance."
+  },
+  "assets": {
+    "icon": "./branding/assets/icon.png",
+    "splashIcon": "./branding/assets/splash-icon.png",
+    "adaptiveIconForeground": "./branding/assets/android-icon-foreground.png",
+    "adaptiveIconBackground": "./branding/assets/android-icon-background.png",
+    "adaptiveIconMonochrome": "./branding/assets/android-icon-monochrome.png",
+    "favicon": "./branding/assets/favicon.png"
+  },
+  "colors": {
+    "background": "#0F1115",
+    "surface": "#1A1D23",
+    "surfaceElevated": "#242830",
+    "border": "#2D323B",
+    "text": "#F5F5F5",
+    "textSecondary": "#A8AEB8",
+    "textMuted": "#6C7280",
+    "textInverse": "#0F1115",
+    "primary": "#FF6B35",
+    "primaryDark": "#E84A1A",
+    "primarySoft": "#FF6B3522",
+    "onPrimary": "#FFFFFF",
+    "success": "#4CAF50",
+    "successSoft": "#4CAF5022",
+    "warning": "#FFB300",
+    "warningSoft": "#FFB30022",
+    "error": "#E53935",
+    "errorSoft": "#E5393522",
+    "info": "#2196F3",
+    "infoSoft": "#2196F322",
+    "xp": "#FFD24A",
+    "streak": "#FF6B35",
+    "splashBackground": "#0F1115"
+  },
+  "ranks": {
+    "E": { "color": "#8E8E93", "title": "Recrue" },
+    "D": { "color": "#5C9CE5", "title": "Pratiquant" },
+    "C": { "color": "#2BCB8C", "title": "Compétiteur" },
+    "B": { "color": "#FFB300", "title": "Athlète" },
+    "A": { "color": "#FF6B35", "title": "Élite" },
+    "S": { "color": "#E84A1A", "title": "Champion" },
+    "S+": { "color": "#B82424", "title": "Vétéran" },
+    "S++": { "color": "#FFD700", "title": "Légende" }
+  },
+  "fonts": {
+    "base": "System",
+    "heading": "System"
+  }
+}
