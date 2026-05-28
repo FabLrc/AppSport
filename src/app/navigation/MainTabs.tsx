@@ -2,6 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
 import { HomeScreen } from '@/features/training/screens/HomeScreen';
+import { BodyTrackingScreen } from '@/features/body-tracking/screens/BodyTrackingScreen';
 import { SettingsScreen } from '@/features/settings/SettingsScreen';
 import { theme } from '@/shared/theme';
 import { strings } from '@/shared/strings';
@@ -34,6 +35,16 @@ export function MainTabs() {
           tabBarLabel: strings.tabs.home,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="barbell-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="BodyTracking"
+        component={BodyTrackingScreen}
+        options={{
+          tabBarLabel: strings.bodyTracking.tabLabel,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="body-outline" size={size} color={color} />
           ),
         }}
       />

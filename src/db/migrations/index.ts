@@ -1,5 +1,6 @@
 import { migration as migration001 } from './001_init';
 import { migration as migration002 } from './002_lot1_tables';
+import { migration as migration003 } from './003_lot2_mesures';
 
 import type { Migration } from '../migrate';
 
@@ -10,4 +11,4 @@ import type { Migration } from '../migrate';
  *
  * Voir `src/db/README.md` pour la procédure d'ajout.
  */
-export const ALL_MIGRATIONS: readonly Migration[] = [migration001, migration002];
+export const ALL_MIGRATIONS: readonly Migration[] = [migration001, migration002, migration003];

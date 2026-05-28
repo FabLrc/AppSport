@@ -9,6 +9,7 @@ import { ExerciceHistoryScreen } from '@/features/training/screens/ExerciceHisto
 import { ProgramListScreen } from '@/features/training/screens/ProgramListScreen';
 import { ProgramEditScreen } from '@/features/training/screens/ProgramEditScreen';
 import { ExercicePickerScreen } from '@/features/training/screens/ExercicePickerScreen';
+import { AddMeasurementScreen } from '@/features/body-tracking/screens/AddMeasurementScreen';
 import { useProfileStore } from '@/state/profileStore';
 import { theme } from '@/shared/theme';
 
@@ -53,6 +54,11 @@ export function RootNavigator() {
           <Stack.Screen name="ProgramList" component={ProgramListScreen} />
           <Stack.Screen name="ProgramEdit" component={ProgramEditScreen} />
           <Stack.Screen name="ExercicePicker" component={ExercicePickerScreen} />
+          <Stack.Screen
+            name="AddMeasurement"
+            component={AddMeasurementScreen}
+            options={{ presentation: 'modal' }}
+          />
         </>
       )}
     </Stack.Navigator>

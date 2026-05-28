@@ -83,3 +83,20 @@ export interface ExerciceAvecConfig {
   reps_max: number;
   duree_seconde_cible: number | null;
 }
+
+export interface MesureCorporelle {
+  id: number;
+  date: string;
+  poids_kg: number | null;
+  tour_taille_cm: number | null;
+  tour_hanches_cm: number | null;
+  tour_poitrine_cm: number | null;
+  tour_bras_cm: number | null;
+  tour_cuisses_cm: number | null;
+  photo_uri: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+export type CreateMesureCorporelleInput = Omit<MesureCorporelle, 'id' | 'created_at'>;
+export type UpdateMesureCorporelleInput = Partial<Omit<MesureCorporelle, 'id' | 'created_at'>>;

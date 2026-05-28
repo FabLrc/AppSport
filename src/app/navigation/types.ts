@@ -8,10 +8,13 @@ export type RootStackParamList = {
   ProgramList: undefined;
   ProgramEdit: { seanceTypeId: number; seanceTypeName: string };
   ExercicePicker: { seanceTypeId: number; seanceTypeName: string };
+  // Lot 2 — suivi corporel
+  AddMeasurement: { mesureId?: number } | undefined;
 };
 
 export type MainTabParamList = {
   Home: undefined;
+  BodyTracking: undefined;
   Settings: undefined;
 };
 

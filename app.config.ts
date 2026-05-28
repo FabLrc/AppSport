@@ -50,6 +50,14 @@ const config: ExpoConfig = {
         imageWidth: 200,
       },
     ],
+    [
+      'expo-image-picker',
+      {
+        photosPermission:
+          'Cette app accède à ta galerie pour enregistrer tes photos de progression.',
+        cameraPermission: 'Cette app accède à ta caméra pour prendre des photos de progression.',
+      },
+    ],
   ],
 };
 
