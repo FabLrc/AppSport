@@ -14,7 +14,7 @@ section 10. À mettre à jour à chaque fin de lot.
 
 Hors cahier : préparation à l'implémentation. **Livré dans cette session.**
 
-- ✅ Projet Expo SDK 56 + TypeScript strict initialisé
+- ✅ Projet Expo SDK 54 + TypeScript strict initialisé
 - ✅ ESLint 9 (flat config) + Prettier 3 + scripts npm (`lint`, `format`, `typecheck`, `check`)
 - ✅ Paths alias `@/*` (src) et `@branding/*` (branding)
 - ✅ Branding centralisé : `branding/branding.config.json` (source) + wrapper TS

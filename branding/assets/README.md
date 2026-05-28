@@ -33,6 +33,6 @@ générer les variantes avec un outil dédié, par exemple :
 
 ## État actuel
 
-Les assets en place sont les **placeholders du template Expo SDK 56**. Ils servent
+Les assets en place sont les **placeholders du template Expo**. Ils servent
 uniquement à valider que le build fonctionne. À remplacer dès qu'une identité
 visuelle est arrêtée (voir `docs/BRANDING.md`).

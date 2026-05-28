@@ -5,7 +5,7 @@
 ## Quoi
 
 MVP d'application mobile de suivi d'entraînement, mono-utilisateur par
-installation, 100 % hors ligne. React Native (Expo SDK 56) + TypeScript
+installation, 100 % hors ligne. React Native (Expo SDK 54) + TypeScript
 strict. Distribution APK Android + TestFlight iOS.
 
 **Source de vérité fonctionnelle** : [`docs/cahier-des-charges.md`](docs/cahier-des-charges.md).
@@ -72,5 +72,5 @@ L'écran qui s'affiche au démarrage est une **page placeholder** indiquant
   par le branding.
 - Ne pas modifier une migration déjà commitée — créer une nouvelle.
 - Ne pas ajouter de dépendance sans s'assurer qu'elle est compatible Expo
-  SDK 56 (utiliser `npx expo install <pkg>` plutôt que `npm install` pour
+  SDK 54 (utiliser `npx expo install <pkg>` plutôt que `npm install` pour
   les packages `expo-*` et les peers React Native).

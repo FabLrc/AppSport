@@ -18,6 +18,8 @@ export default [
       'android/**',
       'ios/**',
       'coverage/**',
+      // metro.config.js doit rester CommonJS (chargé par Metro avant toute transpilation).
+      'metro.config.js',
     ],
   },
   js.configs.recommended,

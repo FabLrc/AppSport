@@ -82,7 +82,7 @@ Détails dans [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Stack
 
-- Expo SDK 56 (React Native 0.85)
+- Expo SDK 54 (React Native 0.81)
 - TypeScript strict
 - React Navigation 7 (native-stack + bottom-tabs)
 - expo-sqlite (stockage local)

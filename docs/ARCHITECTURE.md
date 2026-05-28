@@ -16,17 +16,17 @@ Le code source est organisé pour qu'un autre développeur puisse :
 
 ## Stack et choix techniques
 
-| Élément       | Choix                                                | Justification                                                    |
-| ------------- | ---------------------------------------------------- | ---------------------------------------------------------------- |
-| Runtime       | Expo SDK 56 (managed)                                | Build APK + TestFlight via EAS, APIs natives `expo-*` cohérentes |
-| Langage       | TypeScript strict                                    | Maintenabilité, refacto sereins sur un projet à long terme       |
-| Navigation    | React Navigation 7 (native-stack + bottom-tabs)      | Standard de fait, dark mode natif, animations natives            |
-| Stockage      | `expo-sqlite`                                        | Imposé par le cahier (section 3)                                 |
-| State global  | Zustand                                              | Léger, sans boilerplate, un store par domaine                    |
-| Formulaires   | `react-hook-form` + `zod`                            | Validation typée, peu de re-renders, schémas réutilisables       |
-| Dates         | `date-fns`                                           | Léger, tree-shakeable, FR locale                                 |
-| Lint / format | ESLint 9 (flat config) + Prettier 3                  | Cohérence du code, CI rapide                                     |
-| UI            | StyleSheet + tokens centralisés (pas de lib externe) | Contrôle total, zéro friction pour le branding                   |
+| Élément       | Choix                                                | Justification                                                                                                       |
+| ------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Runtime       | Expo SDK 54 (managed)                                | Build APK + TestFlight via EAS, APIs natives `expo-*` cohérentes. SDK aligné sur Expo Go disponible sur les stores. |
+| Langage       | TypeScript strict                                    | Maintenabilité, refacto sereins sur un projet à long terme                                                          |
+| Navigation    | React Navigation 7 (native-stack + bottom-tabs)      | Standard de fait, dark mode natif, animations natives                                                               |
+| Stockage      | `expo-sqlite`                                        | Imposé par le cahier (section 3)                                                                                    |
+| State global  | Zustand                                              | Léger, sans boilerplate, un store par domaine                                                                       |
+| Formulaires   | `react-hook-form` + `zod`                            | Validation typée, peu de re-renders, schémas réutilisables                                                          |
+| Dates         | `date-fns`                                           | Léger, tree-shakeable, FR locale                                                                                    |
+| Lint / format | ESLint 9 (flat config) + Prettier 3                  | Cohérence du code, CI rapide                                                                                        |
+| UI            | StyleSheet + tokens centralisés (pas de lib externe) | Contrôle total, zéro friction pour le branding                                                                      |
 
 Dépendances **non installées** dans le socle, ajoutées avec leur lot :
 
