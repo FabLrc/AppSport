@@ -34,3 +34,37 @@ export async function getExerciceById(id: number): Promise<Exercice | null> {
   const raw = await db.getFirstAsync<RawExercice>(`SELECT * FROM exercice WHERE id = ?`, [id]);
   return raw !== null ? fromRaw(raw) : null;
 }
+
+// ---------------------------------------------------------------------------
+// Lot 3 — Création d'exercice personnalisé
+// ---------------------------------------------------------------------------
+
+export interface CreateExerciceInput {
+  nom: string;
+  groupe_musculaire: string;
+  type: 'compose' | 'isolation';
+  mode_charge: 'charge' | 'poids_corps';
+  variantes: string[] | null;
+  description: string | null;
+}
+
+export async function createExercice(input: CreateExerciceInput): Promise<Exercice> {
+  const db = await getDatabase();
+  const result = await db.runAsync(
+    `INSERT INTO exercice (nom, groupe_musculaire, type, mode_charge, variantes, description)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [
+      input.nom,
+      input.groupe_musculaire,
+      input.type,
+      input.mode_charge,
+      input.variantes !== null ? JSON.stringify(input.variantes) : null,
+      input.description,
+    ],
+  );
+  const created = await db.getFirstAsync<RawExercice>(`SELECT * FROM exercice WHERE id = ?`, [
+    result.lastInsertRowId,
+  ]);
+  if (created === null) throw new Error("Impossible de créer l'exercice");
+  return fromRaw(created);
+}

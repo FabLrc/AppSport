@@ -84,3 +84,82 @@ export async function countSeriesParExercice(seanceId: number): Promise<Record<n
   }
   return result;
 }
+
+// ---------------------------------------------------------------------------
+// Lot 3 — Historique et surcharge progressive
+// ---------------------------------------------------------------------------
+
+export interface HistoriqueEntry {
+  seance_id: number;
+  session_date: string;
+  max_charge: number | null;
+  max_reps: number;
+  total_reps: number;
+  nombre_series: number;
+}
+
+/**
+ * Retourne l'historique d'un exercice : une ligne par séance complétée,
+ * avec la charge maximale, le nombre de reps max et le total de reps.
+ * Limité aux 50 dernières séances pour la performance.
+ */
+export async function getHistoriqueExercice(exerciceId: number): Promise<HistoriqueEntry[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{
+    seance_id: number;
+    session_date: string;
+    max_charge: number | null;
+    max_reps: number;
+    total_reps: number;
+    nombre_series: number;
+  }>(
+    `SELECT
+       sp.seance_id,
+       s.date           AS session_date,
+       MAX(sp.charge_kg) AS max_charge,
+       MAX(sp.reps_realisees) AS max_reps,
+       SUM(sp.reps_realisees) AS total_reps,
+       COUNT(*)          AS nombre_series
+     FROM serie_performance sp
+     JOIN seance s ON s.id = sp.seance_id
+     WHERE sp.exercice_id = ?
+       AND s.statut = 'completee'
+     GROUP BY sp.seance_id
+     ORDER BY s.date ASC
+     LIMIT 50`,
+    [exerciceId],
+  );
+  return rows;
+}
+
+/**
+ * Retourne les séries d'une séance groupées par exercice.
+ * Utilisé pour alimenter la détection de surcharge progressive.
+ */
+export async function getSeriesParExercicePourSurcharge(
+  seanceId: number,
+): Promise<Record<number, Array<{ charge_kg: number | null; reps_realisees: number }>>> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{
+    exercice_id: number;
+    charge_kg: number | null;
+    reps_realisees: number;
+  }>(
+    `SELECT exercice_id, charge_kg, reps_realisees
+     FROM serie_performance
+     WHERE seance_id = ?
+     ORDER BY exercice_id, ordre`,
+    [seanceId],
+  );
+
+  const result: Record<number, Array<{ charge_kg: number | null; reps_realisees: number }>> = {};
+  for (const row of rows) {
+    const existing = result[row.exercice_id];
+    if (existing === undefined) {
+      result[row.exercice_id] = [{ charge_kg: row.charge_kg, reps_realisees: row.reps_realisees }];
+    } else {
+      existing.push({ charge_kg: row.charge_kg, reps_realisees: row.reps_realisees });
+    }
+  }
+  return result;
+}

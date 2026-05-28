@@ -25,6 +25,8 @@ interface SessionState {
   currentExercice: () => ExerciceAvecConfig | null;
   isLastExercice: () => boolean;
   allSerisDoneForCurrent: () => boolean;
+  /** Réordonne les exercices restants (à partir du suivant) sans toucher aux complétés. */
+  reorderRemainingExercices: (newRemaining: ExerciceAvecConfig[]) => void;
 }
 
 export const useSessionStore = create<SessionState>()((set, get) => ({
@@ -109,5 +111,18 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     if (current === undefined) return false;
     const done = s.completedSeriesCount[current.exercice.id] ?? 0;
     return done >= current.series_cible;
+  },
+
+  reorderRemainingExercices: (newRemaining) => {
+    set((state) => {
+      if (state.session === null) return state;
+      const alreadyDone = state.session.exercises.slice(0, state.session.currentExerciseIndex + 1);
+      return {
+        session: {
+          ...state.session,
+          exercises: [...alreadyDone, ...newRemaining],
+        },
+      };
+    });
   },
 }));
