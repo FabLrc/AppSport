@@ -1,4 +1,5 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 
 import { HomeScreen } from '@/features/training/screens/HomeScreen';
 import { SettingsScreen } from '@/features/settings/SettingsScreen';
@@ -26,11 +27,25 @@ export function MainTabs() {
         },
       }}
     >
-      <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: strings.tabs.home }} />
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          tabBarLabel: strings.tabs.home,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="barbell-outline" size={size} color={color} />
+          ),
+        }}
+      />
       <Tab.Screen
         name="Settings"
         component={SettingsScreen}
-        options={{ tabBarLabel: strings.tabs.settings }}
+        options={{
+          tabBarLabel: strings.tabs.settings,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="settings-outline" size={size} color={color} />
+          ),
+        }}
       />
     </Tab.Navigator>
   );
