@@ -5,14 +5,14 @@ remplacer ces fichiers en conservant les noms et les dimensions.
 
 ## Fichiers et formats requis
 
-| Fichier | Usage | Format | Dimensions recommandées |
-|---|---|---|---|
-| `icon.png` | Icône iOS et fallback | PNG carré | 1024 × 1024 |
-| `splash-icon.png` | Logo affiché sur le splash screen Expo | PNG transparent | 1024 × 1024 (le splash centre l'image) |
-| `android-icon-foreground.png` | Couche avant de l'icône adaptative Android | PNG transparent | 1024 × 1024 (zone visible ~432 × 432 au centre) |
-| `android-icon-background.png` | Couche arrière de l'icône adaptative Android | PNG opaque | 1024 × 1024 |
-| `android-icon-monochrome.png` | Icône monochrome (Material You) | PNG, 1 canal | 1024 × 1024 |
-| `favicon.png` | Favicon pour l'export web | PNG carré | 48 × 48 (ou multiple) |
+| Fichier                       | Usage                                        | Format          | Dimensions recommandées                         |
+| ----------------------------- | -------------------------------------------- | --------------- | ----------------------------------------------- |
+| `icon.png`                    | Icône iOS et fallback                        | PNG carré       | 1024 × 1024                                     |
+| `splash-icon.png`             | Logo affiché sur le splash screen Expo       | PNG transparent | 1024 × 1024 (le splash centre l'image)          |
+| `android-icon-foreground.png` | Couche avant de l'icône adaptative Android   | PNG transparent | 1024 × 1024 (zone visible ~432 × 432 au centre) |
+| `android-icon-background.png` | Couche arrière de l'icône adaptative Android | PNG opaque      | 1024 × 1024                                     |
+| `android-icon-monochrome.png` | Icône monochrome (Material You)              | PNG, 1 canal    | 1024 × 1024                                     |
+| `favicon.png`                 | Favicon pour l'export web                    | PNG carré       | 48 × 48 (ou multiple)                           |
 
 ## Règles à respecter
 

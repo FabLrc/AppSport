@@ -16,7 +16,12 @@ type CardProps = PropsWithChildren<{
  * (rang affiché, statistique, action rapide…). Pas d'ombre — en thème sombre,
  * c'est la nuance de fond qui crée l'élévation.
  */
-export function Card({ children, variant = 'surface', padding = theme.spacing.lg, style }: CardProps) {
+export function Card({
+  children,
+  variant = 'surface',
+  padding = theme.spacing.lg,
+  style,
+}: CardProps) {
   return (
     <View
       style={[

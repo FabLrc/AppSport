@@ -1,8 +1,4 @@
-import {
-  Text as RNText,
-  type TextProps as RNTextProps,
-  type TextStyle,
-} from 'react-native';
+import { Text as RNText, type TextProps as RNTextProps, type TextStyle } from 'react-native';
 
 import { theme, type TypographyVariant } from '@/shared/theme';
 import type { ColorToken } from '@/shared/theme/colors';

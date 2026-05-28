@@ -28,13 +28,4 @@ export type BrandingRanks = Branding['ranks'];
 export type RankKey = keyof BrandingRanks;
 
 /** Ordre canonique des rangs, de la recrue à la légende. */
-export const RANK_ORDER: readonly RankKey[] = [
-  'E',
-  'D',
-  'C',
-  'B',
-  'A',
-  'S',
-  'S+',
-  'S++',
-] as const;
+export const RANK_ORDER: readonly RankKey[] = ['E', 'D', 'C', 'B', 'A', 'S', 'S+', 'S++'] as const;
