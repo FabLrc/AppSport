@@ -11,7 +11,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import Svg, { Circle, Line } from 'react-native-svg';
+import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { Screen } from '@/shared/components/Screen';
@@ -570,9 +570,9 @@ function RestTimerOverlay({
           {isDone ? strings.restTimer.done.toUpperCase() : strings.restTimer.label}
         </Text>
 
-        {/* Cadran SVG */}
+        {/* Cadran SVG — texte inclus dans le SVG pour éviter les conflits de couche Android */}
         <View style={overlayStyles.dialWrapper}>
-          <Svg width={TIMER_SIZE} height={TIMER_SIZE} style={StyleSheet.absoluteFill}>
+          <Svg width={TIMER_SIZE} height={TIMER_SIZE}>
             {/* Piste de fond */}
             <Circle
               cx={TIMER_C}
@@ -598,19 +598,30 @@ function RestTimerOverlay({
               rotation="-90"
               origin={`${TIMER_C}, ${TIMER_C}`}
             />
-          </Svg>
-
-          {/* Temps centré sur le cadran */}
-          <View style={overlayStyles.dialCenter}>
-            <Text style={[overlayStyles.timeText, { color: arcColor }]}>
+            {/* Temps centré — dans le SVG pour rester dans la même couche native */}
+            <SvgText
+              x={TIMER_C}
+              y={isDone ? TIMER_C + 12 : TIMER_C + 22}
+              textAnchor="middle"
+              fontSize={58}
+              fontWeight="700"
+              fill={arcColor}
+            >
               {formatTime(remaining)}
-            </Text>
+            </SvgText>
+            {/* Coche de fin */}
             {isDone && (
-              <Text variant="headingSmall" style={overlayStyles.doneCheck}>
+              <SvgText
+                x={TIMER_C}
+                y={TIMER_C + 46}
+                textAnchor="middle"
+                fontSize={20}
+                fill={theme.colors.success}
+              >
                 ✓
-              </Text>
+              </SvgText>
             )}
-          </View>
+          </Svg>
         </View>
 
         {/* Prochain exercice / série */}
@@ -887,16 +898,6 @@ const overlayStyles = StyleSheet.create({
   dialWrapper: {
     width: TIMER_SIZE,
     height: TIMER_SIZE,
-  },
-  dialCenter: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  timeText: {
-    fontSize: 58,
-    fontWeight: '700',
-    letterSpacing: 1,
   },
   doneCheck: {
     color: theme.colors.success,
