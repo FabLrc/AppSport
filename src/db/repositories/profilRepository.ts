@@ -1,4 +1,6 @@
 import { getDatabase } from '@/db/client';
+import { getRangForXp } from '@/domain/ranks';
+import { calculerStreakApresActivite } from '@/domain/streak';
 import type { Profil, CreateProfilInput } from './types';
 
 interface RawProfil {
@@ -69,5 +71,56 @@ export async function updateDerniereActivite(date: string): Promise<void> {
   await db.runAsync(
     `UPDATE profil SET date_derniere_activite = ?, updated_at = datetime('now') WHERE id = 1`,
     [date],
+  );
+}
+
+/** Ajoute des XP au profil, recalcule le rang, et met à jour la base. */
+export async function addXpToProfil(amount: number): Promise<Profil> {
+  const current = await getProfil();
+  if (current === null) throw new Error('Profil introuvable');
+  const newXp = current.xp_total + amount;
+  const newRang = getRangForXp(newXp);
+  await updateProfilXp(newXp, newRang.key);
+  return { ...current, xp_total: newXp, rang_courant: newRang.key };
+}
+
+/**
+ * Met à jour le streak après une activité (séance ou course).
+ * Recalcule streak, gel, et date de dernière activité.
+ */
+export async function updateStreakApresActivite(today: string): Promise<void> {
+  const profil = await getProfil();
+  if (profil === null) return;
+  const update = calculerStreakApresActivite(
+    {
+      streak_courant: profil.streak_courant,
+      gel_streak_disponible: profil.gel_streak_disponible,
+      date_derniere_activite: profil.date_derniere_activite,
+    },
+    today,
+  );
+  const db = await getDatabase();
+  await db.runAsync(
+    `UPDATE profil
+     SET streak_courant = ?,
+         gel_streak_disponible = ?,
+         date_derniere_activite = ?,
+         updated_at = datetime('now')
+     WHERE id = 1`,
+    [update.streak_courant, update.gel_streak_disponible ? 1 : 0, update.date_derniere_activite],
+  );
+}
+
+export async function updateStreak(
+  streak_courant: number,
+  gel_streak_disponible: boolean,
+  date_derniere_activite: string,
+): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync(
+    `UPDATE profil
+     SET streak_courant = ?, gel_streak_disponible = ?, date_derniere_activite = ?, updated_at = datetime('now')
+     WHERE id = 1`,
+    [streak_courant, gel_streak_disponible ? 1 : 0, date_derniere_activite],
   );
 }

@@ -24,6 +24,13 @@ import {
   getMesureById,
   updateMesure,
 } from '@/db/repositories/mesureCorporelleRepository';
+import {
+  marquerModuleComplete,
+  marquerXpDonne,
+} from '@/db/repositories/onboardingProgressionRepository';
+import { addXpToProfil } from '@/db/repositories/profilRepository';
+import { useProfileStore } from '@/state/profileStore';
+import { XP } from '@/domain/xp';
 import type { RootStackParamList } from '@/app/navigation/types';
 
 type RouteParams = RouteProp<RootStackParamList, 'AddMeasurement'>;
@@ -85,6 +92,7 @@ function copyPhotoToAppDir(uri: string): string {
 export function AddMeasurementScreen() {
   const navigation = useNavigation();
   const route = useRoute<RouteParams>();
+  const { loadProfile } = useProfileStore();
   const mesureId = route.params?.mesureId;
 
   const today = new Date().toISOString().split('T')[0] ?? '';
@@ -210,6 +218,14 @@ export function AddMeasurementScreen() {
           photo_uri: photoUri,
           notes: notes || null,
         });
+        // XP mensurations + onboarding (une seule fois)
+        await addXpToProfil(XP.MENSURATIONS);
+        const isFirst = await marquerModuleComplete('mensurations');
+        if (isFirst) {
+          await addXpToProfil(XP.ONBOARDING_MENSURATIONS);
+          await marquerXpDonne('mensurations');
+        }
+        await loadProfile();
       }
       navigation.goBack();
     } catch {

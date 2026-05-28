@@ -241,7 +241,7 @@ Affectation d'activité par jour de la semaine.
 | `type`             | `TEXT NOT NULL UNIQUE`              | enum : voir `RappelType` dans `types.ts`                                    |
 | `actif`            | `INTEGER NOT NULL DEFAULT 1`        | bool                                                                        |
 | `horaire`          | `TEXT NOT NULL`                     | `"HH:MM"` — heure de déclenchement (ou heure de début pour plages répétées) |
-| `notification_ids` | `TEXT NOT NULL DEFAULT '[]'`        | JSON array des identifiants expo-notifications actifs                        |
+| `notification_ids` | `TEXT NOT NULL DEFAULT '[]'`        | JSON array des identifiants expo-notifications actifs                       |
 
 #### Notes d'implémentation Lot 5
 

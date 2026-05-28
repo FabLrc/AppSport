@@ -8,6 +8,14 @@ import { Button } from '@/shared/components/Button';
 import { theme } from '@/shared/theme';
 import { strings } from '@/shared/strings';
 import { getMacroplanning, updateMacroplanning } from '@/db/repositories/macroPlanningRepository';
+import {
+  marquerModuleComplete,
+  marquerXpDonne,
+} from '@/db/repositories/onboardingProgressionRepository';
+import { addXpToProfil } from '@/db/repositories/profilRepository';
+import { useProfileStore } from '@/state/profileStore';
+import { XP } from '@/domain/xp';
+import { syncAllReminders } from '@/shared/notifications';
 import type { ActivitePlanning, JourSemaine, MacroPlanning } from '@/db/repositories/types';
 
 const JOURS: JourSemaine[] = [
@@ -41,6 +49,7 @@ function jourLabel(jour: JourSemaine): string {
 
 export function MacroPlanningScreen() {
   const navigation = useNavigation();
+  const { loadProfile } = useProfileStore();
   const [planning, setPlanning] = useState<MacroPlanning | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -63,6 +72,13 @@ export function MacroPlanningScreen() {
         updates[jour] = planning[jour];
       }
       await updateMacroplanning(updates);
+      const isNew = await marquerModuleComplete('planning');
+      if (isNew) {
+        await addXpToProfil(XP.ONBOARDING_PLANNING);
+        await marquerXpDonne('planning');
+      }
+      await loadProfile();
+      syncAllReminders().catch(() => undefined);
       Alert.alert('', strings.planning.savedSuccess, [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);

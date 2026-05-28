@@ -8,6 +8,8 @@ import { Button } from '@/shared/components/Button';
 import { theme } from '@/shared/theme';
 import { strings } from '@/shared/strings';
 import { createCourse, getCoursesForRecord } from '@/db/repositories/courseRepository';
+import { addXpToProfil, updateStreakApresActivite } from '@/db/repositories/profilRepository';
+import { useProfileStore } from '@/state/profileStore';
 import { detecterRecords, formatAllure } from '@/domain/personal-records';
 
 const RESSENTI_OPTIONS = [1, 2, 3, 4, 5] as const;
@@ -42,6 +44,7 @@ function calcAllure(distanceStr: string, minutesStr: string, secondsStr: string)
 
 export function AddRunScreen() {
   const navigation = useNavigation();
+  const { loadProfile } = useProfileStore();
   const today = new Date().toISOString().split('T')[0] ?? '';
 
   const [distance, setDistance] = useState('');
@@ -84,6 +87,9 @@ export function AddRunScreen() {
         xp_attribue: xp,
         notes: notes || null,
       });
+
+      await Promise.all([addXpToProfil(xp), updateStreakApresActivite(today)]);
+      await loadProfile();
 
       if (hasRecord) {
         const messages = records.map((r) => {

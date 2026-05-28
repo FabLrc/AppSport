@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -14,10 +14,25 @@ import { createSeance, getSeanceEnCours, abandonSeance } from '@/db/repositories
 import { countSeriesParExercice } from '@/db/repositories/seriePerformanceRepository';
 import { getExercicesAvecConfig } from '@/db/repositories/seanceTypeRepository';
 import { getActiviteAujourdhui } from '@/db/repositories/macroPlanningRepository';
+import { getOnboardingProgression } from '@/db/repositories/onboardingProgressionRepository';
+import {
+  getValidationAujourdhui,
+  setValidationAujourdhui,
+  getObjectifNutritionnel,
+} from '@/db/repositories/nutritionRepository';
+import { addXpToProfil } from '@/db/repositories/profilRepository';
 import { useSessionStore } from '@/state/sessionStore';
 import { strings } from '@/shared/strings';
 import { theme } from '@/shared/theme';
-import type { ActivitePlanning, Seance, SeanceType } from '@/db/repositories/types';
+import { getProgressionToNextRang } from '@/domain/ranks';
+import { XP } from '@/domain/xp';
+import type {
+  ActivitePlanning,
+  ObjectifNutritionnel,
+  OnboardingProgression,
+  Seance,
+  SeanceType,
+} from '@/db/repositories/types';
 import type { RootStackParamList, MainTabParamList } from '@/app/navigation/types';
 
 type Props = CompositeScreenProps<
@@ -25,23 +40,34 @@ type Props = CompositeScreenProps<
   NativeStackScreenProps<RootStackParamList>
 >;
 
+const today = new Date().toISOString().split('T')[0] ?? '';
+
 export function HomeScreen({ navigation }: Props) {
-  const { profile } = useProfileStore();
+  const { profile, loadProfile } = useProfileStore();
   const { startSession } = useSessionStore();
   const [seanceTypes, setSeanceTypes] = useState<SeanceType[]>([]);
   const [interruptedSeance, setInterruptedSeance] = useState<Seance | null>(null);
   const [activiteJour, setActiviteJour] = useState<ActivitePlanning | null>(null);
+  const [onboarding, setOnboarding] = useState<OnboardingProgression | null>(null);
+  const [nutritionObjectif, setNutritionObjectif] = useState<ObjectifNutritionnel | null>(null);
+  const [nutritionValidated, setNutritionValidated] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const loadData = useCallback(async () => {
-    const [types, enCours, activite] = await Promise.all([
+    const [types, enCours, activite, prog, nutritionObjt, nutritionVal] = await Promise.all([
       getAllSeanceTypes(),
       getSeanceEnCours(),
       getActiviteAujourdhui().catch(() => null),
+      getOnboardingProgression().catch(() => null),
+      getObjectifNutritionnel().catch(() => null),
+      getValidationAujourdhui(today).catch(() => false),
     ]);
     setSeanceTypes(types);
     setInterruptedSeance(enCours);
     setActiviteJour(activite);
+    setOnboarding(prog);
+    setNutritionObjectif(nutritionObjt);
+    setNutritionValidated(nutritionVal);
     setLoading(false);
   }, []);
 
@@ -93,6 +119,16 @@ export function HomeScreen({ navigation }: Props) {
     ]);
   };
 
+  const handleNutritionToggle = async () => {
+    const newValue = !nutritionValidated;
+    setNutritionValidated(newValue);
+    await setValidationAujourdhui(today, newValue);
+    if (newValue) {
+      await addXpToProfil(XP.NUTRITION_QUOTIDIENNE);
+      await loadProfile();
+    }
+  };
+
   const hour = new Date().getHours();
   const greeting =
     hour >= 18
@@ -101,6 +137,48 @@ export function HomeScreen({ navigation }: Props) {
 
   const seanceZero = seanceTypes.find((s) => s.is_seance_zero);
   const mainPrograms = seanceTypes.filter((s) => !s.is_seance_zero);
+
+  const rankProgression = profile !== null ? getProgressionToNextRang(profile.xp_total) : null;
+
+  const onboardingModules = onboarding
+    ? [
+        {
+          key: 'mensurations' as const,
+          done: onboarding.mensurations_configure,
+          label: strings.gamification.modules.mensurations.label,
+          accroche: strings.gamification.modules.mensurations.accroche,
+          xpLabel: strings.gamification.modules.mensurations.xp,
+          onPress: () => navigation.navigate('AddMeasurement'),
+        },
+        {
+          key: 'rappels' as const,
+          done: onboarding.rappels_configure,
+          label: strings.gamification.modules.rappels.label,
+          accroche: strings.gamification.modules.rappels.accroche,
+          xpLabel: strings.gamification.modules.rappels.xp,
+          onPress: () => navigation.navigate('Reminders'),
+        },
+        {
+          key: 'nutrition' as const,
+          done: onboarding.nutrition_configure,
+          label: strings.gamification.modules.nutrition.label,
+          accroche: strings.gamification.modules.nutrition.accroche,
+          xpLabel: strings.gamification.modules.nutrition.xp,
+          onPress: () => navigation.navigate('NutritionSetup'),
+        },
+        {
+          key: 'planning' as const,
+          done: onboarding.planning_configure,
+          label: strings.gamification.modules.planning.label,
+          accroche: strings.gamification.modules.planning.accroche,
+          xpLabel: strings.gamification.modules.planning.xp,
+          onPress: () => navigation.navigate('MacroPlanning'),
+        },
+      ]
+    : [];
+
+  const pendingModules = onboardingModules.filter((m) => !m.done);
+  const showOnboarding = pendingModules.length > 0;
 
   if (loading) {
     return (
@@ -121,9 +199,84 @@ export function HomeScreen({ navigation }: Props) {
           {greeting}
         </Text>
 
+        {/* Rang + XP + Streak */}
+        {profile !== null && rankProgression !== null && (
+          <Card variant="surface" style={styles.statsCard}>
+            <View style={styles.statsRow}>
+              {/* Rang */}
+              <View style={styles.statItem}>
+                <Text style={styles.statBadge}>{rankProgression.current.key}</Text>
+                <Text style={styles.statLabel}>{rankProgression.current.titre}</Text>
+              </View>
+              {/* Séparateur */}
+              <View style={styles.statDivider} />
+              {/* Streak */}
+              <View style={styles.statItem}>
+                <Text style={styles.statValue}>🔥 {profile.streak_courant}</Text>
+                <Text style={styles.statLabel}>{strings.gamification.streakLabel}</Text>
+              </View>
+              {/* Séparateur */}
+              <View style={styles.statDivider} />
+              {/* XP */}
+              <View style={styles.statItem}>
+                <Text style={styles.statValue}>{profile.xp_total}</Text>
+                <Text style={styles.statLabel}>{strings.gamification.xpLabel}</Text>
+              </View>
+            </View>
+            {/* Barre de progression XP */}
+            {rankProgression.next !== null && (
+              <View style={styles.xpBarWrapper}>
+                <View style={styles.xpBarBg}>
+                  <View
+                    style={[
+                      styles.xpBarFill,
+                      { width: `${rankProgression.progressPercent}%` as `${number}%` },
+                    ]}
+                  />
+                </View>
+                <Text style={styles.xpBarLabel}>
+                  {strings.gamification.nextRank} : {rankProgression.next.titre} (
+                  {rankProgression.next.xpMin} XP)
+                </Text>
+              </View>
+            )}
+          </Card>
+        )}
+
+        {/* Onboarding progressif */}
+        {showOnboarding && (
+          <Card variant="surface" style={styles.onboardingCard}>
+            <Text variant="headingSmall">{strings.gamification.gagne_tes_xp}</Text>
+            <Text variant="bodySmall" color="textSecondary">
+              {strings.gamification.progression
+                .replace('{done}', String(onboardingModules.length - pendingModules.length))
+                .replace('{total}', String(onboardingModules.length))
+                .replace('{s}', onboardingModules.length > 1 ? 's' : '')}
+            </Text>
+            {pendingModules.map((m) => (
+              <TouchableOpacity key={m.key} onPress={m.onPress} style={styles.onboardingRow}>
+                <View style={styles.onboardingInfo}>
+                  <Text style={styles.onboardingLabel}>{m.label}</Text>
+                  <Text style={styles.onboardingAccroche}>{m.accroche}</Text>
+                </View>
+                <Text style={styles.onboardingXp}>{m.xpLabel}</Text>
+              </TouchableOpacity>
+            ))}
+          </Card>
+        )}
+
         {/* Activité du jour (macro-planning) */}
         {activiteJour !== null && (
           <ActivityCard activite={activiteJour} onAddRun={() => navigation.navigate('AddRun')} />
+        )}
+
+        {/* Nutrition du jour */}
+        {nutritionObjectif !== null && (
+          <NutritionCard
+            objectif={nutritionObjectif}
+            validated={nutritionValidated}
+            onToggle={handleNutritionToggle}
+          />
         )}
 
         {/* Bannière reprise séance interrompue */}
@@ -204,6 +357,47 @@ export function HomeScreen({ navigation }: Props) {
     </Screen>
   );
 }
+
+function NutritionCard({
+  objectif,
+  validated,
+  onToggle,
+}: {
+  objectif: ObjectifNutritionnel;
+  validated: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <Card variant="surface" style={nutritionStyles.card}>
+      <View style={nutritionStyles.header}>
+        <Text variant="headingSmall">🍽️ {strings.nutrition.todayTitle}</Text>
+        <Text variant="bodySmall" color="textSecondary">
+          {objectif.kcal_cible} {strings.nutrition.kcalUnit} · {objectif.proteines_g}{' '}
+          {strings.nutrition.proteinesUnit}
+        </Text>
+      </View>
+      <Button
+        label={validated ? strings.nutrition.unvalidate : strings.nutrition.validate}
+        variant={validated ? 'secondary' : 'primary'}
+        size="sm"
+        onPress={onToggle}
+      />
+      {validated && (
+        <Text style={nutritionStyles.validatedLabel}>{strings.nutrition.validated}</Text>
+      )}
+    </Card>
+  );
+}
+
+const nutritionStyles = StyleSheet.create({
+  card: { gap: theme.spacing.sm },
+  header: { gap: 2 },
+  validatedLabel: {
+    fontSize: 12,
+    color: theme.colors.success,
+    fontWeight: '600',
+  },
+});
 
 function ActivityCard({
   activite,
@@ -303,6 +497,82 @@ const styles = StyleSheet.create({
   sectionTitle: {
     marginBottom: theme.spacing.xs,
   },
+  // Stats (rang / streak / XP)
+  statsCard: { gap: theme.spacing.sm },
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+  statItem: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 2,
+  },
+  statDivider: {
+    width: 1,
+    height: 36,
+    backgroundColor: theme.colors.border,
+  },
+  statBadge: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: theme.colors.primary,
+    letterSpacing: -0.5,
+  },
+  statValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: theme.colors.text,
+  },
+  statLabel: {
+    fontSize: 11,
+    color: theme.colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  xpBarWrapper: { gap: 4 },
+  xpBarBg: {
+    height: 6,
+    backgroundColor: theme.colors.border,
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  xpBarFill: {
+    height: 6,
+    backgroundColor: theme.colors.primary,
+    borderRadius: 3,
+  },
+  xpBarLabel: {
+    fontSize: 11,
+    color: theme.colors.textMuted,
+    textAlign: 'right',
+  },
+  // Onboarding
+  onboardingCard: { gap: theme.spacing.sm },
+  onboardingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: theme.spacing.xs,
+    gap: theme.spacing.sm,
+  },
+  onboardingInfo: { flex: 1, gap: 2 },
+  onboardingLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.text,
+  },
+  onboardingAccroche: {
+    fontSize: 12,
+    color: theme.colors.textMuted,
+  },
+  onboardingXp: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: theme.colors.primary,
+  },
+  // Reprise
   resumeCard: {
     borderLeftWidth: 3,
     borderLeftColor: theme.colors.warning,

@@ -15,6 +15,13 @@ import { Text } from '@/shared/components/Text';
 import { theme } from '@/shared/theme';
 import { strings } from '@/shared/strings';
 import { getAllRappels, updateRappel } from '@/db/repositories/journalRappelRepository';
+import {
+  marquerModuleComplete,
+  marquerXpDonne,
+} from '@/db/repositories/onboardingProgressionRepository';
+import { addXpToProfil } from '@/db/repositories/profilRepository';
+import { useProfileStore } from '@/state/profileStore';
+import { XP } from '@/domain/xp';
 import { syncRappel } from '@/shared/notifications';
 import type { JournalRappel, RappelType } from '@/db/repositories/types';
 
@@ -138,12 +145,21 @@ function RappelRow({
 
 export function RemindersScreen() {
   const navigation = useNavigation();
+  const { loadProfile } = useProfileStore();
   const [rappels, setRappels] = useState<JournalRappel[]>([]);
 
   useFocusEffect(
     useCallback(() => {
       getAllRappels().then(setRappels);
-    }, []),
+      void (async () => {
+        const isNew = await marquerModuleComplete('rappels');
+        if (isNew) {
+          await addXpToProfil(XP.ONBOARDING_RAPPELS);
+          await marquerXpDonne('rappels');
+          await loadProfile();
+        }
+      })();
+    }, [loadProfile]),
   );
 
   async function handleToggle(type: RappelType, value: boolean) {

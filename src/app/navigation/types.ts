@@ -15,6 +15,8 @@ export type RootStackParamList = {
   MacroPlanning: undefined;
   // Lot 5 — rappels
   Reminders: undefined;
+  // Lot 6 — nutrition
+  NutritionSetup: undefined;
 };
 
 export type MainTabParamList = {

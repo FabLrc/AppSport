@@ -14,6 +14,8 @@ import {
 import { getSeanceById } from '@/db/repositories/seanceRepository';
 import { getExercicesAvecConfig } from '@/db/repositories/seanceTypeRepository';
 import { getSeriesParExercicePourSurcharge } from '@/db/repositories/seriePerformanceRepository';
+import { addXpToProfil, updateStreakApresActivite } from '@/db/repositories/profilRepository';
+import { useProfileStore } from '@/state/profileStore';
 import { strings } from '@/shared/strings';
 import { theme } from '@/shared/theme';
 import type { RootStackParamList } from '@/app/navigation/types';
@@ -22,7 +24,16 @@ type Props = NativeStackScreenProps<RootStackParamList, 'WorkoutSummary'>;
 
 export function WorkoutSummaryScreen({ navigation, route }: Props) {
   const { seanceId, xpEarned, isSeanceZero } = route.params;
+  const { loadProfile } = useProfileStore();
   const [suggestions, setSuggestions] = useState<ProgressionSuggestion[]>([]);
+
+  // Attribution XP et mise à jour streak au montage
+  useEffect(() => {
+    const todayStr = new Date().toISOString().split('T')[0] ?? '';
+    Promise.all([addXpToProfil(xpEarned), updateStreakApresActivite(todayStr)])
+      .then(() => loadProfile())
+      .catch(() => undefined);
+  }, [xpEarned, loadProfile]);
 
   // Calcul asynchrone des suggestions de surcharge progressive
   useEffect(() => {
