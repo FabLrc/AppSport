@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -12,6 +12,8 @@ import { strings } from '@/shared/strings';
 import { theme } from '@/shared/theme';
 import type { RootStackParamList, MainTabParamList } from '@/app/navigation/types';
 import { branding } from '@branding/branding.config';
+import { exportAndShare, importFromFile } from '@/shared/backupService';
+import { clearAllData } from '@/db/repositories/backupRepository';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<MainTabParamList, 'Settings'>,
@@ -19,28 +21,97 @@ type Props = CompositeScreenProps<
 >;
 
 export function SettingsScreen({ navigation }: Props) {
-  const { profile } = useProfileStore();
+  const { profile, resetProfile } = useProfileStore();
+  const s = strings.settings;
 
-  const versionLabel = strings.settings.version.replace('{v}', branding.app.version);
+  const versionLabel = s.version.replace('{v}', branding.app.version);
+
+  async function handleExport() {
+    try {
+      const ok = await exportAndShare();
+      if (!ok) {
+        Alert.alert(strings.common.error, s.exportError);
+      }
+    } catch {
+      Alert.alert(strings.common.error, s.exportError);
+    }
+  }
+
+  async function handleImport() {
+    const result = await importFromFile();
+    if (result.ok === false) {
+      if (result.reason === 'cancelled') return;
+      const msg =
+        result.reason === 'invalid_file'
+          ? s.importErrorInvalid
+          : result.reason === 'incompatible_version'
+            ? s.importErrorVersion
+            : s.importErrorGeneric;
+      Alert.alert(strings.common.error, msg);
+      return;
+    }
+    Alert.alert('', s.importSuccess, [{ text: strings.common.ok }]);
+    resetProfile();
+  }
+
+  function handleImportPress() {
+    Alert.alert(s.importConfirmTitle, s.importConfirmBody, [
+      { text: strings.common.cancel, style: 'cancel' },
+      {
+        text: s.importConfirmYes,
+        style: 'destructive',
+        onPress: () => void handleImport(),
+      },
+    ]);
+  }
+
+  function handleClearPress() {
+    Alert.alert(s.clearConfirm1Title, s.clearConfirm1Body, [
+      { text: strings.common.cancel, style: 'cancel' },
+      {
+        text: s.clearConfirm1Yes,
+        style: 'destructive',
+        onPress: () => {
+          Alert.alert(s.clearConfirm2Title, s.clearConfirm2Body, [
+            { text: strings.common.cancel, style: 'cancel' },
+            {
+              text: s.clearConfirm2Yes,
+              style: 'destructive',
+              onPress: () => void handleClearConfirmed(),
+            },
+          ]);
+        },
+      },
+    ]);
+  }
+
+  async function handleClearConfirmed() {
+    try {
+      await clearAllData();
+      Alert.alert('', s.clearSuccess, [{ text: strings.common.ok }]);
+      resetProfile();
+    } catch {
+      Alert.alert(strings.common.error, s.clearError);
+    }
+  }
 
   return (
     <Screen paddingHorizontal={0}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Titre */}
         <Text variant="headingLarge" style={styles.pageTitle}>
-          {strings.settings.title}
+          {s.title}
         </Text>
 
         {/* Section Profil */}
         {profile !== null && (
           <View style={styles.section}>
             <Text variant="label" color="textMuted" style={styles.sectionTitle}>
-              {strings.settings.profile}
+              {s.profile}
             </Text>
             <Card variant="elevated">
               <View style={styles.settingRow}>
                 <Text variant="bodySmall" color="textSecondary">
-                  {strings.settings.profileName}
+                  {s.profileName}
                 </Text>
                 <Text variant="body">{profile.prenom}</Text>
               </View>
@@ -51,14 +122,14 @@ export function SettingsScreen({ navigation }: Props) {
         {/* Section Entraînement */}
         <View style={styles.section}>
           <Text variant="label" color="textMuted" style={styles.sectionTitle}>
-            {strings.settings.entrainement}
+            {s.entrainement}
           </Text>
           <Card variant="elevated">
             <View style={styles.settingRowBtn}>
               <View style={styles.settingInfo}>
-                <Text variant="body">{strings.settings.programs}</Text>
+                <Text variant="body">{s.programs}</Text>
                 <Text variant="bodySmall" color="textSecondary">
-                  {strings.settings.programsSubtitle}
+                  {s.programsSubtitle}
                 </Text>
               </View>
               <Button
@@ -70,9 +141,9 @@ export function SettingsScreen({ navigation }: Props) {
             </View>
             <View style={[styles.settingRowBtn, styles.settingBorder]}>
               <View style={styles.settingInfo}>
-                <Text variant="body">{strings.settings.planning}</Text>
+                <Text variant="body">{s.planning}</Text>
                 <Text variant="bodySmall" color="textSecondary">
-                  {strings.settings.planningSubtitle}
+                  {s.planningSubtitle}
                 </Text>
               </View>
               <Button
@@ -84,9 +155,9 @@ export function SettingsScreen({ navigation }: Props) {
             </View>
             <View style={[styles.settingRowBtn, styles.settingBorder]}>
               <View style={styles.settingInfo}>
-                <Text variant="body">{strings.settings.reminders}</Text>
+                <Text variant="body">{s.reminders}</Text>
                 <Text variant="bodySmall" color="textSecondary">
-                  {strings.settings.remindersSubtitle}
+                  {s.remindersSubtitle}
                 </Text>
               </View>
               <Button
@@ -98,9 +169,9 @@ export function SettingsScreen({ navigation }: Props) {
             </View>
             <View style={[styles.settingRowBtn, styles.settingBorder]}>
               <View style={styles.settingInfo}>
-                <Text variant="body">{strings.settings.nutrition}</Text>
+                <Text variant="body">{s.nutrition}</Text>
                 <Text variant="bodySmall" color="textSecondary">
-                  {strings.settings.nutritionSubtitle}
+                  {s.nutritionSubtitle}
                 </Text>
               </View>
               <Button
@@ -113,7 +184,58 @@ export function SettingsScreen({ navigation }: Props) {
           </Card>
         </View>
 
-        {/* Version */}
+        {/* Section Données */}
+        <View style={styles.section}>
+          <Text variant="label" color="textMuted" style={styles.sectionTitle}>
+            {s.donneesSection}
+          </Text>
+          <Card variant="elevated">
+            <View style={styles.settingRowBtn}>
+              <View style={styles.settingInfo}>
+                <Text variant="body">{s.exportLabel}</Text>
+                <Text variant="bodySmall" color="textSecondary">
+                  {s.exportSubtitle}
+                </Text>
+              </View>
+              <Button
+                label="Exporter"
+                size="sm"
+                variant="secondary"
+                onPress={() => void handleExport()}
+              />
+            </View>
+            <View style={[styles.settingRowBtn, styles.settingBorder]}>
+              <View style={styles.settingInfo}>
+                <Text variant="body">{s.importLabel}</Text>
+                <Text variant="bodySmall" color="textSecondary">
+                  {s.importSubtitle}
+                </Text>
+              </View>
+              <Button label="Importer" size="sm" variant="secondary" onPress={handleImportPress} />
+            </View>
+          </Card>
+        </View>
+
+        {/* Section Zone danger */}
+        <View style={styles.section}>
+          <Text variant="label" color="textMuted" style={styles.sectionTitle}>
+            {s.dangerZone}
+          </Text>
+          <Card variant="elevated">
+            <View style={styles.settingRowBtn}>
+              <View style={styles.settingInfo}>
+                <Text variant="body" color="error">
+                  {s.clearLabel}
+                </Text>
+                <Text variant="bodySmall" color="textSecondary">
+                  {s.clearSubtitle}
+                </Text>
+              </View>
+              <Button label="Effacer" size="sm" variant="destructive" onPress={handleClearPress} />
+            </View>
+          </Card>
+        </View>
+
         <Text variant="caption" color="textMuted" style={styles.version}>
           {versionLabel}
         </Text>

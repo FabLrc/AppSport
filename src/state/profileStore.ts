@@ -8,6 +8,7 @@ interface ProfileState {
   isLoaded: boolean;
   loadProfile: () => Promise<void>;
   createProfile: (input: CreateProfilInput) => Promise<void>;
+  resetProfile: () => void;
 }
 
 export const useProfileStore = create<ProfileState>()((set) => ({
@@ -22,5 +23,9 @@ export const useProfileStore = create<ProfileState>()((set) => ({
   createProfile: async (input) => {
     const profile = await createProfil(input);
     set({ profile });
+  },
+
+  resetProfile: () => {
+    set({ profile: null, isLoaded: true });
   },
 }));
