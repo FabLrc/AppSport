@@ -5,6 +5,10 @@
     "scheme": "appsport",
     "bundleIdentifier": "com.appsport.app",
     "version": "0.1.0",
+    "androidVersionCode": 1,
+    "iosBuildNumber": "1",
+    "repository": "FabLrc/AppSport",
+    "testflightUrl": "",
     "tagline": "Le carnet d'entraînement qui te suit, séance après séance."
   },
   "assets": {

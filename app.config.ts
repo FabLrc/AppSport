@@ -25,9 +25,11 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     bundleIdentifier: branding.app.bundleIdentifier,
+    buildNumber: branding.app.iosBuildNumber,
   },
   android: {
     package: branding.app.bundleIdentifier,
+    versionCode: branding.app.androidVersionCode,
     adaptiveIcon: {
       foregroundImage: branding.assets.adaptiveIconForeground,
       backgroundImage: branding.assets.adaptiveIconBackground,
