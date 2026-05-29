@@ -134,7 +134,7 @@ export function AddMeasurementScreen() {
   async function pickFromGallery() {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Permission refusée', "L'accès à la galerie est nécessaire.");
+      Alert.alert(strings.addMeasure.permissionDeniedTitle, strings.addMeasure.permissionGallery);
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -152,7 +152,7 @@ export function AddMeasurementScreen() {
   async function pickFromCamera() {
     const perm = await ImagePicker.requestCameraPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Permission refusée', "L'accès à la caméra est nécessaire.");
+      Alert.alert(strings.addMeasure.permissionDeniedTitle, strings.addMeasure.permissionCamera);
       return;
     }
     const result = await ImagePicker.launchCameraAsync({

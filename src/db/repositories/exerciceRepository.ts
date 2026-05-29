@@ -1,4 +1,5 @@
 import { getDatabase } from '@/db/client';
+import { parseJsonArray } from '@/shared/json';
 import type { Exercice } from './types';
 
 interface RawExercice {
@@ -18,7 +19,7 @@ function fromRaw(raw: RawExercice): Exercice {
     groupe_musculaire: raw.groupe_musculaire,
     type: raw.type as Exercice['type'],
     mode_charge: raw.mode_charge as Exercice['mode_charge'],
-    variantes: raw.variantes !== null ? (JSON.parse(raw.variantes) as string[]) : null,
+    variantes: raw.variantes !== null ? parseJsonArray<string>(raw.variantes) : null,
     description: raw.description,
   };
 }

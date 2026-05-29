@@ -23,13 +23,8 @@ const RESSENTI_LABELS: Record<Ressenti, string> = {
   5: strings.running.ressenti['5'],
 };
 
-const RESSENTI_COLORS: Record<Ressenti, string> = {
-  1: '#4CAF50',
-  2: '#8BC34A',
-  3: '#FFB300',
-  4: '#FF7043',
-  5: '#E53935',
-};
+// Couleurs du ressenti : rampe d'effort centralisée dans le thème (vert → rouge).
+const RESSENTI_COLORS = theme.effortScale;
 
 function calcAllure(distanceStr: string, minutesStr: string, secondsStr: string): number | null {
   const distance = parseFloat(distanceStr.replace(',', '.'));

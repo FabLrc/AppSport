@@ -109,7 +109,7 @@ const pressedStyles: Record<ButtonVariant, ViewStyle> = StyleSheet.create({
   primary: { backgroundColor: theme.colors.primaryDark },
   secondary: { backgroundColor: theme.colors.surface },
   ghost: { backgroundColor: theme.colors.primarySoft },
-  destructive: { backgroundColor: '#B71C1C' },
+  destructive: { backgroundColor: theme.colors.errorDark },
 });
 
 const labelColor: Record<ButtonVariant, string> = {

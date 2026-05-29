@@ -93,7 +93,7 @@ export function WorkoutSummaryScreen({ navigation, route }: Props) {
               {xpLabel}
             </Text>
             <Text variant="bodySmall" color="textSecondary">
-              {isSeanceZero ? 'Bonus première fois !' : 'XP gagné'}
+              {isSeanceZero ? strings.summary.xpBonusFirstTime : strings.summary.xpEarnedLabel}
             </Text>
           </View>
 

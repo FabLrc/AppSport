@@ -80,7 +80,7 @@ export function MacroPlanningScreen() {
       await loadProfile();
       syncAllReminders().catch(() => undefined);
       Alert.alert('', strings.planning.savedSuccess, [
-        { text: 'OK', onPress: () => navigation.goBack() },
+        { text: strings.common.ok, onPress: () => navigation.goBack() },
       ]);
     } catch {
       Alert.alert(strings.common.error);

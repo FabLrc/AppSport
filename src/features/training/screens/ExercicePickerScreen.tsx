@@ -341,7 +341,7 @@ const modalStyles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: '#00000088',
+    backgroundColor: theme.colors.overlay,
     justifyContent: 'flex-end',
   },
   container: {

@@ -51,7 +51,7 @@ export function SettingsScreen({ navigation }: Props) {
         {/* Section Entraînement */}
         <View style={styles.section}>
           <Text variant="label" color="textMuted" style={styles.sectionTitle}>
-            Entraînement
+            {strings.settings.entrainement}
           </Text>
           <Card variant="elevated">
             <View style={styles.settingRowBtn}>

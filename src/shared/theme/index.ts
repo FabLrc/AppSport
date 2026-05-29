@@ -1,4 +1,5 @@
 import { colors, type Colors } from './colors';
+import { effortScale, type EffortLevel } from './effortScale';
 import { radius, type RadiusToken } from './radius';
 import { spacing, type SpacingToken } from './spacing';
 import { typography, type TypographyVariant } from './typography';
@@ -20,9 +21,10 @@ export const theme = {
   spacing,
   radius,
   typography,
+  effortScale,
 } as const;
 
 export type Theme = typeof theme;
 
-export { colors, spacing, radius, typography };
-export type { Colors, SpacingToken, RadiusToken, TypographyVariant };
+export { colors, spacing, radius, typography, effortScale };
+export type { Colors, SpacingToken, RadiusToken, TypographyVariant, EffortLevel };

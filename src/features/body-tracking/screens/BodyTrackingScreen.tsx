@@ -62,13 +62,13 @@ const CHART_METRICS: Array<{ key: MesureKey; label: string; unit: string; color:
     key: 'tour_bras_cm',
     label: strings.bodyTracking.measures.tour_bras_cm,
     unit: strings.bodyTracking.units.tour_bras_cm,
-    color: '#C084FC',
+    color: theme.colors.accent1,
   },
   {
     key: 'tour_cuisses_cm',
     label: strings.bodyTracking.measures.tour_cuisses_cm,
     unit: strings.bodyTracking.units.tour_cuisses_cm,
-    color: '#2BCB8C',
+    color: theme.colors.accent2,
   },
 ];
 
@@ -497,7 +497,7 @@ const styles = StyleSheet.create({
   },
   photoModal: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.9)',
+    backgroundColor: theme.colors.overlayStrong,
     justifyContent: 'center',
     alignItems: 'center',
   },

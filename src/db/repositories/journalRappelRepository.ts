@@ -1,4 +1,5 @@
 import { getDatabase } from '@/db/client';
+import { parseJsonArray } from '@/shared/json';
 import type { JournalRappel, RappelType, UpdateRappelInput } from './types';
 
 type RawRow = {
@@ -15,7 +16,7 @@ function mapRow(row: RawRow): JournalRappel {
     type: row.type as RappelType,
     actif: row.actif === 1,
     horaire: row.horaire,
-    notification_ids: JSON.parse(row.notification_ids) as string[],
+    notification_ids: parseJsonArray(row.notification_ids),
   };
 }
 

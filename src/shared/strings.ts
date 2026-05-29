@@ -6,6 +6,7 @@ export const strings = {
     save: 'Enregistrer',
     cancel: 'Annuler',
     confirm: 'Confirmer',
+    ok: 'OK',
     delete: 'Supprimer',
     edit: 'Modifier',
     close: 'Fermer',
@@ -124,6 +125,8 @@ export const strings = {
     title: 'Séance terminée !',
     titleSeanceZero: 'Première séance dans la boîte !',
     xpEarned: '+{xp} XP',
+    xpEarnedLabel: 'XP gagné',
+    xpBonusFirstTime: 'Bonus première fois !',
     seriesCompleted: '{n} série{s} complétée{s}',
     backToHome: "Retour à l'accueil",
     nudgeSeanceZero: "Continue comme ça — tes prochaines séances t'attendent sur l'accueil.",
@@ -186,6 +189,7 @@ export const strings = {
   },
   settings: {
     title: 'Réglages',
+    entrainement: 'Entraînement',
     programs: 'Programmes',
     programsSubtitle: 'Modifier vos séances types',
     planning: 'Planning',
@@ -384,6 +388,9 @@ export const strings = {
     photoSourceGallery: 'Choisir depuis la galerie',
     errorEmpty: 'Saisis au moins une valeur.',
     savedSuccess: 'Mesure enregistrée !',
+    permissionDeniedTitle: 'Permission refusée',
+    permissionGallery: "L'accès à la galerie est nécessaire.",
+    permissionCamera: "L'accès à la caméra est nécessaire.",
   },
 } as const;
 

@@ -34,11 +34,16 @@
     "warningSoft": "#FFB30022",
     "error": "#E53935",
     "errorSoft": "#E5393522",
+    "errorDark": "#B71C1C",
     "info": "#2196F3",
     "infoSoft": "#2196F322",
     "xp": "#FFD24A",
     "streak": "#FF6B35",
-    "splashBackground": "#0F1115"
+    "splashBackground": "#0F1115",
+    "overlay": "#00000088",
+    "overlayStrong": "rgba(0,0,0,0.9)",
+    "accent1": "#C084FC",
+    "accent2": "#2BCB8C"
   },
   "ranks": {
     "E": { "color": "#8E8E93", "title": "Recrue" },
