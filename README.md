@@ -39,9 +39,9 @@ Metro démarre, affiche un QR code et les raccourcis :
 - `a` → ouvre l'émulateur Android.
 - QR code → scanner avec Expo Go sur device physique.
 
-L'app affiche un **écran placeholder** indiquant que le socle est prêt. C'est
-attendu : le Lot 1 (onboarding et première séance) n'est pas encore livré.
-Voir [`docs/ROADMAP.md`](docs/ROADMAP.md).
+Au premier lancement, l'app ouvre l'**onboarding** (prénom, objectif, niveau)
+puis enchaîne sur la **Séance Zéro**. Les lancements suivants ouvrent
+directement l'accueil. Avancement détaillé dans [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ### Vérifications statiques
 
@@ -69,12 +69,12 @@ npm run check        # combine les trois précédents (CI / pré-commit)
 | Lot | Périmètre                                             | Statut     |
 | --- | ----------------------------------------------------- | ---------- |
 | 0   | Socle (Expo, branding, theme, navigation, migrations) | ✅ livré   |
-| 1   | Onboarding sprint, Séance Zéro, écran de séance       | ⏳ à venir |
-| 2   | Suivi corporel                                        | ⏳ à venir |
-| 3   | Intelligence d'entraînement                           | ⏳ à venir |
-| 4   | Course à pied                                         | ⏳ à venir |
-| 5   | Rappels                                               | ⏳ à venir |
-| 6   | Gamification, nutrition, onboarding progressif        | ⏳ à venir |
+| 1   | Onboarding sprint, Séance Zéro, écran de séance       | ✅ livré   |
+| 2   | Suivi corporel                                        | ✅ livré   |
+| 3   | Intelligence d'entraînement                           | ✅ livré   |
+| 4   | Course à pied                                         | ✅ livré   |
+| 5   | Rappels                                               | ✅ livré   |
+| 6   | Gamification, nutrition, onboarding progressif        | ✅ livré   |
 | 7   | Sauvegarde                                            | ⏳ à venir |
 | 8   | Distribution et mise à jour                           | ⏳ à venir |
 

@@ -50,17 +50,17 @@ Une seule ligne par installation (cahier section 6 — Profil).
 
 État de la quête de profil (section 9.1 du cahier). Singleton id=1.
 
-| Colonne                   | Type                                 | Notes                                 |
-| ------------------------- | ------------------------------------ | ------------------------------------- |
-| `id`                      | `INTEGER PRIMARY KEY CHECK (id = 1)` | une seule ligne                       |
-| `mensurations_configure`  | `INTEGER NOT NULL DEFAULT 0`         | bool — true après première mensuration |
-| `rappels_configure`       | `INTEGER NOT NULL DEFAULT 0`         | bool — true à la première visite RemindersScreen |
-| `nutrition_configure`     | `INTEGER NOT NULL DEFAULT 0`         | bool — true après NutritionSetupScreen |
-| `planning_configure`      | `INTEGER NOT NULL DEFAULT 0`         | bool — true après sauvegarde MacroPlanningScreen |
-| `mensurations_xp_donne`   | `INTEGER NOT NULL DEFAULT 0`         | bool — évite le double-award XP onboarding |
-| `rappels_xp_donne`        | `INTEGER NOT NULL DEFAULT 0`         |
-| `nutrition_xp_donne`      | `INTEGER NOT NULL DEFAULT 0`         |
-| `planning_xp_donne`       | `INTEGER NOT NULL DEFAULT 0`         |
+| Colonne                  | Type                                 | Notes                                            |
+| ------------------------ | ------------------------------------ | ------------------------------------------------ |
+| `id`                     | `INTEGER PRIMARY KEY CHECK (id = 1)` | une seule ligne                                  |
+| `mensurations_configure` | `INTEGER NOT NULL DEFAULT 0`         | bool — true après première mensuration           |
+| `rappels_configure`      | `INTEGER NOT NULL DEFAULT 0`         | bool — true à la première visite RemindersScreen |
+| `nutrition_configure`    | `INTEGER NOT NULL DEFAULT 0`         | bool — true après NutritionSetupScreen           |
+| `planning_configure`     | `INTEGER NOT NULL DEFAULT 0`         | bool — true après sauvegarde MacroPlanningScreen |
+| `mensurations_xp_donne`  | `INTEGER NOT NULL DEFAULT 0`         | bool — évite le double-award XP onboarding       |
+| `rappels_xp_donne`       | `INTEGER NOT NULL DEFAULT 0`         |
+| `nutrition_xp_donne`     | `INTEGER NOT NULL DEFAULT 0`         |
+| `planning_xp_donne`      | `INTEGER NOT NULL DEFAULT 0`         |
 
 #### `exercice` — ✅ Lot 1
 
@@ -268,11 +268,11 @@ Affectation d'activité par jour de la semaine.
 
 Singleton id=1 pré-seedé (kcal=2000, protéines=150 g).
 
-| Colonne      | Type                                 | Notes                    |
-| ------------ | ------------------------------------ | ------------------------ |
-| `id`         | `INTEGER PRIMARY KEY CHECK (id = 1)` | une seule ligne          |
-| `kcal_cible` | `INTEGER NOT NULL DEFAULT 2000`      |                          |
-| `proteines_g`| `INTEGER NOT NULL DEFAULT 150`       | grammes (pas de suffixe) |
+| Colonne       | Type                                 | Notes                    |
+| ------------- | ------------------------------------ | ------------------------ |
+| `id`          | `INTEGER PRIMARY KEY CHECK (id = 1)` | une seule ligne          |
+| `kcal_cible`  | `INTEGER NOT NULL DEFAULT 2000`      |                          |
+| `proteines_g` | `INTEGER NOT NULL DEFAULT 150`       | grammes (pas de suffixe) |
 
 #### `validation_nutrition_quotidienne` — ✅ Lot 6
 

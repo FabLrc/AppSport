@@ -52,13 +52,12 @@ AppSport/
 │   ├── features/              ← un dossier par domaine (Lot 1+)
 │   │   ├── _placeholder/        ← écran provisoire du socle
 │   │   ├── onboarding/          ← Lot 1
-│   │   ├── training/            ← Lots 1, 3
+│   │   ├── training/            ← Lots 1, 3 (+ accueil et gamification)
+│   │   ├── body-tracking/       ← Lot 2
 │   │   ├── running/             ← Lot 4
-│   │   ├── body/                ← Lot 2
+│   │   ├── planning/            ← Lot 4
 │   │   ├── nutrition/           ← Lot 6
-│   │   ├── reminders/           ← Lot 5
-│   │   ├── gamification/        ← Lot 6
-│   │   └── settings/            ← Lot 7
+│   │   └── settings/            ← Lot 5 (réglages + rappels)
 │   ├── shared/                ← réutilisable transverse
 │   │   ├── components/          ← Screen, Text, Button, Card…
 │   │   ├── hooks/               ← hooks génériques
@@ -75,7 +74,8 @@ AppSport/
 │   │   ├── ranks/               ← Lot 6
 │   │   ├── streak/              ← Lot 6
 │   │   ├── progressive-overload/← Lot 3
-│   │   └── personal-records/    ← Lot 4
+│   │   ├── personal-records/    ← Lot 4
+│   │   └── reminders/           ← Lot 5
 │   └── state/                 ← stores Zustand (Lot 1+)
 ├── App.tsx                  ← thin wrapper, exporte src/app/App.tsx
 └── index.ts                 ← entrypoint Expo (registerRootComponent)
