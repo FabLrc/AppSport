@@ -15,6 +15,10 @@ import type { ExpoConfig } from 'expo/config';
 import branding from './branding/branding.config.json';
 
 const config: ExpoConfig = {
+  owner: 'fablrc',
+  extra: {
+    eas: { projectId: 'afb0ef7a-c57c-4d55-8714-8083ca6dd705' },
+  },
   name: branding.app.name,
   slug: branding.app.slug,
   scheme: branding.app.scheme,
