@@ -96,6 +96,20 @@ export function SettingsScreen({ navigation }: Props) {
                 onPress={() => navigation.navigate('Reminders')}
               />
             </View>
+            <View style={[styles.settingRowBtn, styles.settingBorder]}>
+              <View style={styles.settingInfo}>
+                <Text variant="body">{strings.settings.nutrition}</Text>
+                <Text variant="bodySmall" color="textSecondary">
+                  {strings.settings.nutritionSubtitle}
+                </Text>
+              </View>
+              <Button
+                label={strings.programs.editButton}
+                size="sm"
+                variant="secondary"
+                onPress={() => navigation.navigate('NutritionSetup')}
+              />
+            </View>
           </Card>
         </View>
 

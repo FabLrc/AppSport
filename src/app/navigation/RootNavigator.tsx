@@ -13,6 +13,7 @@ import { AddMeasurementScreen } from '@/features/body-tracking/screens/AddMeasur
 import { AddRunScreen } from '@/features/running/screens/AddRunScreen';
 import { MacroPlanningScreen } from '@/features/planning/screens/MacroPlanningScreen';
 import { RemindersScreen } from '@/features/settings/screens/RemindersScreen';
+import { NutritionSetupScreen } from '@/features/nutrition/screens/NutritionSetupScreen';
 import { useProfileStore } from '@/state/profileStore';
 import { theme } from '@/shared/theme';
 
@@ -69,6 +70,7 @@ export function RootNavigator() {
           />
           <Stack.Screen name="MacroPlanning" component={MacroPlanningScreen} />
           <Stack.Screen name="Reminders" component={RemindersScreen} />
+          <Stack.Screen name="NutritionSetup" component={NutritionSetupScreen} />
         </>
       )}
     </Stack.Navigator>

@@ -167,3 +167,29 @@ export type UpdateRappelInput = {
   horaire?: string;
   notification_ids?: string[];
 };
+
+// --- Lot 6 — Gamification + nutrition ---
+
+export interface ObjectifNutritionnel {
+  id: 1;
+  kcal_cible: number;
+  proteines_g: number;
+}
+
+export interface ValidationNutritionQuotidienne {
+  date: string; // YYYY-MM-DD
+  atteint: boolean;
+  created_at: string;
+}
+
+export interface OnboardingProgression {
+  id: 1;
+  mensurations_configure: boolean;
+  rappels_configure: boolean;
+  nutrition_configure: boolean;
+  planning_configure: boolean;
+  mensurations_xp_donne: boolean;
+  rappels_xp_donne: boolean;
+  nutrition_xp_donne: boolean;
+  planning_xp_donne: boolean;
+}
