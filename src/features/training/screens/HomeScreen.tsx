@@ -60,8 +60,8 @@ export function HomeScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(true);
 
   const loadData = useCallback(async () => {
-    const [types, enCours, activite, prog, nutritionObjt, nutritionVal, nbZero] =
-      await Promise.all([
+    const [types, enCours, activite, prog, nutritionObjt, nutritionVal, nbZero] = await Promise.all(
+      [
         getAllSeanceTypes(),
         getSeanceEnCours(),
         getActiviteAujourdhui().catch(() => null),
@@ -69,7 +69,8 @@ export function HomeScreen({ navigation }: Props) {
         getObjectifNutritionnel().catch(() => null),
         getValidationAujourdhui(today).catch(() => false),
         countSeanceZeroCompletees().catch(() => 0),
-      ]);
+      ],
+    );
     setSeanceTypes(types);
     setInterruptedSeance(enCours);
     setActiviteJour(activite);
