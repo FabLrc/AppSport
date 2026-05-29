@@ -17,6 +17,8 @@ export type RootStackParamList = {
   Reminders: undefined;
   // Lot 6 — nutrition
   NutritionSetup: undefined;
+  // Lot 8 — notes de version (mise à jour)
+  ReleaseNotes: undefined;
 };
 
 export type MainTabParamList = {

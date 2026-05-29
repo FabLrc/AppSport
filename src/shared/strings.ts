@@ -235,7 +235,6 @@ export const strings = {
     checkUpdateButton: 'Vérifier',
     checkUpToDate: 'Tu es à jour ✓',
     checkAvailable: 'Version {v} disponible !',
-    checkError: 'Vérification impossible. Réessaie plus tard.',
   },
   updates: {
     bannerTitle: 'Mise à jour disponible',

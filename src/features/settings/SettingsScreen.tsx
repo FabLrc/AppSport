@@ -8,6 +8,7 @@ import { Text } from '@/shared/components/Text';
 import { Button } from '@/shared/components/Button';
 import { Card } from '@/shared/components/Card';
 import { useProfileStore } from '@/state/profileStore';
+import { useUpdateStore } from '@/state/updateStore';
 import { strings } from '@/shared/strings';
 import { theme } from '@/shared/theme';
 import type { RootStackParamList, MainTabParamList } from '@/app/navigation/types';
@@ -22,9 +23,22 @@ type Props = CompositeScreenProps<
 
 export function SettingsScreen({ navigation }: Props) {
   const { profile, resetProfile } = useProfileStore();
+  const { checking, recheck } = useUpdateStore();
   const s = strings.settings;
 
   const versionLabel = s.version.replace('{v}', branding.app.version);
+
+  async function handleCheckUpdate() {
+    const result = await recheck();
+    if (result === null) {
+      Alert.alert('', s.checkUpToDate, [{ text: strings.common.ok }]);
+      return;
+    }
+    Alert.alert('', s.checkAvailable.replace('{v}', result.version), [
+      { text: strings.common.cancel, style: 'cancel' },
+      { text: strings.common.ok, onPress: () => navigation.navigate('ReleaseNotes') },
+    ]);
+  }
 
   async function handleExport() {
     try {
@@ -232,6 +246,30 @@ export function SettingsScreen({ navigation }: Props) {
                 </Text>
               </View>
               <Button label="Effacer" size="sm" variant="destructive" onPress={handleClearPress} />
+            </View>
+          </Card>
+        </View>
+
+        {/* Section À propos */}
+        <View style={styles.section}>
+          <Text variant="label" color="textMuted" style={styles.sectionTitle}>
+            {s.aboutSection}
+          </Text>
+          <Card variant="elevated">
+            <View style={styles.settingRowBtn}>
+              <View style={styles.settingInfo}>
+                <Text variant="body">{s.checkUpdateLabel}</Text>
+                <Text variant="bodySmall" color="textSecondary">
+                  {s.checkUpdateSubtitle}
+                </Text>
+              </View>
+              <Button
+                label={s.checkUpdateButton}
+                size="sm"
+                variant="secondary"
+                loading={checking}
+                onPress={() => void handleCheckUpdate()}
+              />
             </View>
           </Card>
         </View>

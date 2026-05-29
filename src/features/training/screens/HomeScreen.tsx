@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, Linking, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -27,6 +27,8 @@ import {
 } from '@/db/repositories/nutritionRepository';
 import { addXpToProfil } from '@/db/repositories/profilRepository';
 import { useSessionStore } from '@/state/sessionStore';
+import { useUpdateStore } from '@/state/updateStore';
+import { UpdateBanner } from '@/features/updates/components/UpdateBanner';
 import { strings } from '@/shared/strings';
 import { theme } from '@/shared/theme';
 import { getProgressionToNextRang } from '@/domain/ranks';
@@ -50,6 +52,7 @@ const today = new Date().toISOString().split('T')[0] ?? '';
 export function HomeScreen({ navigation }: Props) {
   const { profile, loadProfile } = useProfileStore();
   const { startSession } = useSessionStore();
+  const { update, dismissed, checkOnce, dismiss } = useUpdateStore();
   const [seanceTypes, setSeanceTypes] = useState<SeanceType[]>([]);
   const [interruptedSeance, setInterruptedSeance] = useState<Seance | null>(null);
   const [activiteJour, setActiviteJour] = useState<ActivitePlanning | null>(null);
@@ -85,6 +88,11 @@ export function HomeScreen({ navigation }: Props) {
     const unsubscribe = navigation.addListener('focus', loadData);
     return unsubscribe;
   }, [navigation, loadData]);
+
+  // Vérification de mise à jour au démarrage — non bloquante, une fois par session.
+  useEffect(() => {
+    void checkOnce();
+  }, [checkOnce]);
 
   const handleStart = async (seanceType: SeanceType) => {
     const seance = await createSeance(seanceType.id);
@@ -208,6 +216,16 @@ export function HomeScreen({ navigation }: Props) {
         <Text variant="headingLarge" style={styles.greeting}>
           {greeting}
         </Text>
+
+        {/* Bannière de mise à jour (lot 8) — non intrusive, fermable */}
+        {update !== null && !dismissed && (
+          <UpdateBanner
+            version={update.version}
+            onOpenNotes={() => navigation.navigate('ReleaseNotes')}
+            onUpdate={() => void Linking.openURL(update.actionUrl)}
+            onDismiss={dismiss}
+          />
+        )}
 
         {/* Rang + XP + Streak */}
         {profile !== null && rankProgression !== null && (
