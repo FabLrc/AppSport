@@ -1,0 +1,70 @@
+name: Release
+
+# Construit l'APK Android signé via EAS Build (cloud) et publie une GitHub
+# Release avec l'APK en pièce jointe, déclenché par un tag de version `vX.Y.Z`.
+#
+# Prérequis (voir docs/DISTRIBUTION.md) :
+#   - Secret `EXPO_TOKEN` : jeton d'accès Expo (Account settings → Access tokens).
+#   - Le keystore Android est géré par EAS (généré au premier build, à sauvegarder).
+#   - La version doit être bumpée dans branding/branding.config.json avant le tag.
+#
+# iOS / TestFlight n'est pas automatisé ici (nécessite un compte Apple Developer
+# et des identifiants App Store Connect) : voir la procédure manuelle dans la doc.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write # nécessaire pour créer la Release et y attacher l'APK
+
+jobs:
+  android-release:
+    name: Build APK & publish release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Quality gate
+        run: npm run check
+
+      - name: Set up EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build Android APK (EAS cloud)
+        run: eas build --platform android --profile preview --non-interactive --wait --json > build-output.json
+
+      - name: Extract APK URL
+        id: apk
+        run: |
+          URL=$(jq -r '(if type=="array" then .[0] else . end).artifacts.applicationArchiveUrl' build-output.json)
+          if [ -z "$URL" ] || [ "$URL" = "null" ]; then
+            echo "URL d'artefact introuvable dans build-output.json" >&2
+            cat build-output.json >&2
+            exit 1
+          fi
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+      - name: Download APK
+        run: curl -fL -o "appsport-${{ github.ref_name }}.apk" "${{ steps.apk.outputs.url }}"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            "appsport-${{ github.ref_name }}.apk" \
+            --title "AppSport ${{ github.ref_name }}" \
+            --generate-notes
