@@ -298,6 +298,20 @@ note) : c'est une valeur dérivée du total des séances, courses, rappels
 respectés et mesures saisies. Le champ `profil.xp_total` est une **dénormalisation
 de lecture** mise à jour à chaque event créé.
 
+### Lot 7 — Sauvegarde ✅
+
+Pas de nouvelle table. L'export / import / effacement opèrent sur les tables
+existantes via `src/db/repositories/backupRepository.ts` (`exportAllData`,
+`importAllData` en transaction atomique, `clearAllData` + re-seed). La structure
+du fichier JSON est typée dans `src/domain/backup/backupTypes.ts`.
+
+### Lot 8 — Distribution et mise à jour ✅
+
+Pas de nouvelle table. La vérification de mise à jour est **sans état persisté** :
+le résultat et le drapeau « ignorer » vivent en mémoire dans
+`src/state/updateStore.ts` et sont réinitialisés à chaque lancement. Aucune
+migration n'a été nécessaire.
+
 ## Conventions transverses
 
 - **Dates** : stockées en `TEXT` au format ISO 8601 (UTC). Avantage : tri

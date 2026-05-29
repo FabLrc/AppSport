@@ -163,19 +163,35 @@ Cahier section 9.8, section 10.
 - ✅ `profileStore.resetProfile()` — remet `profile: null` pour déclencher le retour à l'onboarding après import/effacement
 - ✅ `expo-sharing` + `expo-document-picker` installés (SDK 54 compatibles)
 
-## Lot 8 — Distribution et mise à jour ⏳
+## Lot 8 — Distribution et mise à jour ✅
 
 Cahier section 9.9, section 10. **Lot final, prépare la diffusion aux testeurs.**
 
-À livrer :
+Code et infrastructure livrés dans le dépôt :
 
-- Build APK signé Android (clé sauvegardée hors dépôt)
-- Build TestFlight iOS (compte Apple Developer requis)
-- Publication APK sur GitHub Releases
-- Vérification de mise à jour au démarrage (API GitHub, comparaison version)
-- Bannière non intrusive si nouvelle version disponible
-- Notes de version affichées dans l'app
-- Comportement non bloquant (fallback démarrage normal si pas de connexion)
+- ✅ `src/domain/updates/` — comparaison de versions sémantiques (pur, sans dépendance RN)
+- ✅ `src/shared/updateService.ts` — vérification via l'API GitHub `releases/latest`,
+  timeout 6 s, **non bloquant** (tout échec → `null`), sélection de l'URL APK (Android) /
+  TestFlight ou page de release (iOS)
+- ✅ `src/state/updateStore.ts` — vérification une seule fois par session ; « ignorer »
+  **non persisté** (la bannière réapparaît au prochain lancement tant que la MAJ n'est pas faite)
+- ✅ `UpdateBanner` (bannière non intrusive en tête du dashboard) + `ReleaseNotesScreen`
+  (notes de version Markdown de la release, modal)
+- ✅ Déclenchement au démarrage depuis `HomeScreen` ; bouton « Vérifier » manuel dans
+  Réglages → À propos
+- ✅ `eas.json` — profils `development` / `preview` (APK Android interne) / `production`
+  (store iOS pour TestFlight), `appVersionSource: local`
+- ✅ Branding : `repository`, `testflightUrl`, `androidVersionCode`, `iosBuildNumber` ;
+  `app.config.ts` câble `versionCode` / `buildNumber`
+- ✅ CI GitHub Actions : `ci.yml` (typecheck + lint + format sur push & PR) +
+  `release.yml` (build APK EAS + publication GitHub Release sur tag `v*`)
+- ✅ `docs/DISTRIBUTION.md` — procédure complète (comptes Expo/Apple, keystore, build,
+  release, TestFlight, versionnage, checklist)
+
+⚠️ Étapes nécessitant les comptes et clés du mainteneur (hors dépôt, documentées dans
+`DISTRIBUTION.md`) : création du compte Expo + secret `EXPO_TOKEN`, compte Apple
+Developer, génération et sauvegarde du keystore Android, premiers builds signés et
+première publication sur GitHub Releases / TestFlight.
 
 ## Hors MVP — Roadmap post-MVP
 

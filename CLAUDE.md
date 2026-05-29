@@ -21,7 +21,8 @@ le code qui est en retard — pas le cahier.
 4. [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) — comment ajouter une feature
 5. [`docs/DATA-MODEL.md`](docs/DATA-MODEL.md) — schéma planifié et statut
 6. [`docs/BRANDING.md`](docs/BRANDING.md) — comment rebrander
-7. [`src/db/README.md`](src/db/README.md) — détails couche données
+7. [`docs/DISTRIBUTION.md`](docs/DISTRIBUTION.md) — build, signature, release, mise à jour (Lot 8)
+8. [`src/db/README.md`](src/db/README.md) — détails couche données
 
 ## Conventions clés
 

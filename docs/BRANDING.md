@@ -30,7 +30,14 @@ Avant de toucher le code, arrêter :
 
 Ouvrir `branding/branding.config.json` et modifier les champs concernés :
 
-- Section `app` → identité textuelle.
+- Section `app` → identité textuelle **et paramètres de distribution** :
+  - `name`, `slug`, `scheme`, `bundleIdentifier`, `version`, `tagline` — identité.
+  - `androidVersionCode` (entier), `iosBuildNumber` (chaîne) — numéros de build
+    (Lot 8), à incrémenter à chaque release. Voir [`DISTRIBUTION.md`](DISTRIBUTION.md).
+  - `repository` (`"owner/repo"`) — dépôt GitHub interrogé pour la vérification de
+    mise à jour au démarrage.
+  - `testflightUrl` — lien d'invitation TestFlight (laisser vide tant qu'iOS n'est
+    pas distribué ; la bannière iOS retombe alors sur la page de release).
 - Section `colors` → palette runtime (consommée par le thème).
 - Section `ranks` → couleurs et titres des rangs de gamification (Lot 6).
   Le titre est en français — le traduire si l'app sort en multi-langue.

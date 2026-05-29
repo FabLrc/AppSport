@@ -34,6 +34,12 @@ Dépendances ajoutées avec leur lot :
 - `expo-image-picker`, `expo-file-system` (Lot 2)
 - `expo-sharing`, `expo-document-picker` (Lot 7)
 - Charts SVG via `react-native-svg` + composant maison `LineChart` (Lots 2-4)
+- Lot 8 : **aucune nouvelle dépendance** — vérification de MAJ via `fetch` (API
+  GitHub) et `Linking` natifs ; build/release pilotés par EAS + GitHub Actions
+
+La distribution (build APK signé, GitHub Releases, TestFlight) et la
+vérification de mise à jour au démarrage sont détaillées dans
+[`DISTRIBUTION.md`](DISTRIBUTION.md).
 
 ## Structure de dossiers
 
@@ -58,7 +64,8 @@ AppSport/
 │   │   ├── running/             ← Lot 4
 │   │   ├── planning/            ← Lot 4
 │   │   ├── nutrition/           ← Lot 6
-│   │   └── settings/            ← Lot 5 (réglages + rappels)
+│   │   ├── settings/            ← Lot 5 (réglages + rappels)
+│   │   └── updates/             ← Lot 8 (bannière MAJ + notes de version)
 │   ├── shared/                ← réutilisable transverse
 │   │   ├── components/          ← Screen, Text, Button, Card…
 │   │   ├── hooks/               ← hooks génériques
@@ -77,7 +84,8 @@ AppSport/
 │   │   ├── progressive-overload/← Lot 3
 │   │   ├── personal-records/    ← Lot 4
 │   │   ├── reminders/           ← Lot 5
-│   │   └── backup/              ← Lot 7 (types AppBackup)
+│   │   ├── backup/              ← Lot 7 (types AppBackup)
+│   │   └── updates/             ← Lot 8 (comparaison de versions)
 │   └── state/                 ← stores Zustand (Lot 1+)
 ├── App.tsx                  ← thin wrapper, exporte src/app/App.tsx
 └── index.ts                 ← entrypoint Expo (registerRootComponent)
