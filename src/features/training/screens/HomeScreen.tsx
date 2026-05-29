@@ -10,7 +10,12 @@ import { Button } from '@/shared/components/Button';
 import { Card } from '@/shared/components/Card';
 import { useProfileStore } from '@/state/profileStore';
 import { getAllSeanceTypes } from '@/db/repositories/seanceTypeRepository';
-import { createSeance, getSeanceEnCours, abandonSeance } from '@/db/repositories/seanceRepository';
+import {
+  createSeance,
+  getSeanceEnCours,
+  abandonSeance,
+  countSeanceZeroCompletees,
+} from '@/db/repositories/seanceRepository';
 import { countSeriesParExercice } from '@/db/repositories/seriePerformanceRepository';
 import { getExercicesAvecConfig } from '@/db/repositories/seanceTypeRepository';
 import { getActiviteAujourdhui } from '@/db/repositories/macroPlanningRepository';
@@ -51,23 +56,27 @@ export function HomeScreen({ navigation }: Props) {
   const [onboarding, setOnboarding] = useState<OnboardingProgression | null>(null);
   const [nutritionObjectif, setNutritionObjectif] = useState<ObjectifNutritionnel | null>(null);
   const [nutritionValidated, setNutritionValidated] = useState(false);
+  const [seanceZeroFaite, setSeanceZeroFaite] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const loadData = useCallback(async () => {
-    const [types, enCours, activite, prog, nutritionObjt, nutritionVal] = await Promise.all([
-      getAllSeanceTypes(),
-      getSeanceEnCours(),
-      getActiviteAujourdhui().catch(() => null),
-      getOnboardingProgression().catch(() => null),
-      getObjectifNutritionnel().catch(() => null),
-      getValidationAujourdhui(today).catch(() => false),
-    ]);
+    const [types, enCours, activite, prog, nutritionObjt, nutritionVal, nbZero] =
+      await Promise.all([
+        getAllSeanceTypes(),
+        getSeanceEnCours(),
+        getActiviteAujourdhui().catch(() => null),
+        getOnboardingProgression().catch(() => null),
+        getObjectifNutritionnel().catch(() => null),
+        getValidationAujourdhui(today).catch(() => false),
+        countSeanceZeroCompletees().catch(() => 0),
+      ]);
     setSeanceTypes(types);
     setInterruptedSeance(enCours);
     setActiviteJour(activite);
     setOnboarding(prog);
     setNutritionObjectif(nutritionObjt);
     setNutritionValidated(nutritionVal);
+    setSeanceZeroFaite(nbZero > 0);
     setLoading(false);
   }, []);
 
@@ -306,8 +315,8 @@ export function HomeScreen({ navigation }: Props) {
           </Card>
         )}
 
-        {/* Séance Zéro */}
-        {seanceZero !== undefined && (
+        {/* Séance Zéro — masquée une fois complétée */}
+        {seanceZero !== undefined && !seanceZeroFaite && (
           <View style={styles.section}>
             <Card variant="elevated" style={styles.seanceZeroCard}>
               <View style={styles.seanceZeroHeader}>
