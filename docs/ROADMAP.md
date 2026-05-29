@@ -147,15 +147,21 @@ Cahier sections 5.7, 7.2, 7.3, 7.4, 9.1, section 10.
 - ✅ Attribution XP dans `RemindersScreen` (onboarding rappels à la première visite)
 - ⚠️ Nudges contextuels (logique d'extinction) non implémentés — section onboarding disparaît naturellement quand tous les modules sont configurés
 
-## Lot 7 — Sauvegarde ⏳
+## Lot 7 — Sauvegarde ✅
 
 Cahier section 9.8, section 10.
 
-À livrer :
-
-- Export JSON via menu de partage natif (`expo-sharing`)
-- Import depuis JSON
-- Effacement complet des données avec double confirmation (RGPD section 12)
+- ✅ `src/domain/backup/backupTypes.ts` — structure typée `AppBackup` (schéma v1.0)
+- ✅ `src/db/repositories/backupRepository.ts` :
+  - `exportAllData()` — lit toutes les tables et retourne un objet JSON sérialisable
+  - `importAllData(backup)` — vide toutes les tables + réinsère depuis la sauvegarde (transaction atomique, FK OFF pendant l'opération)
+  - `clearAllData()` — efface toutes les données utilisateur et re-seed le catalogue par défaut (exercices, programmes, planning, rappels, singletons)
+- ✅ `src/shared/backupService.ts` :
+  - `exportAndShare()` — écrit le JSON dans le cache puis ouvre la feuille de partage native via `expo-sharing`
+  - `importFromFile()` — sélecteur de fichier JSON (`expo-document-picker`), validation de structure, import
+- ✅ `SettingsScreen` : section « Données » (exporter, importer) + section « Zone danger » (effacer avec double confirmation)
+- ✅ `profileStore.resetProfile()` — remet `profile: null` pour déclencher le retour à l'onboarding après import/effacement
+- ✅ `expo-sharing` + `expo-document-picker` installés (SDK 54 compatibles)
 
 ## Lot 8 — Distribution et mise à jour ⏳
 

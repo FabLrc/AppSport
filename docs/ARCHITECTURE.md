@@ -28,11 +28,12 @@ Le code source est organisé pour qu'un autre développeur puisse :
 | Lint / format | ESLint 9 (flat config) + Prettier 3                  | Cohérence du code, CI rapide                                                                                        |
 | UI            | StyleSheet + tokens centralisés (pas de lib externe) | Contrôle total, zéro friction pour le branding                                                                      |
 
-Dépendances **non installées** dans le socle, ajoutées avec leur lot :
+Dépendances ajoutées avec leur lot :
 
 - `expo-notifications` (Lot 5)
-- `expo-image-picker`, `expo-file-system`, `expo-sharing` (Lots 2 et 7)
-- bibliothèque de charts (Lot 2+) — choix entre Victory Native et composant maison à statuer
+- `expo-image-picker`, `expo-file-system` (Lot 2)
+- `expo-sharing`, `expo-document-picker` (Lot 7)
+- Charts SVG via `react-native-svg` + composant maison `LineChart` (Lots 2-4)
 
 ## Structure de dossiers
 
@@ -75,7 +76,8 @@ AppSport/
 │   │   ├── streak/              ← Lot 6
 │   │   ├── progressive-overload/← Lot 3
 │   │   ├── personal-records/    ← Lot 4
-│   │   └── reminders/           ← Lot 5
+│   │   ├── reminders/           ← Lot 5
+│   │   └── backup/              ← Lot 7 (types AppBackup)
 │   └── state/                 ← stores Zustand (Lot 1+)
 ├── App.tsx                  ← thin wrapper, exporte src/app/App.tsx
 └── index.ts                 ← entrypoint Expo (registerRootComponent)
